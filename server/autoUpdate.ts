@@ -56,6 +56,16 @@ Considere fontes como:
 - Notícias locais (Tribuna de Minas, G1 Zona da Mata, Acessa.com)
 - Redes sociais de organizações locais
 - Campanhas de solidariedade ativas na cidade
+- Threads (threads.com) - buscar posts de perfis locais como @petcaeseciabh, @hdembalagens, @ricardoribeirojornalista, @leonardo.barretovargas
+- Instagram - buscar posts com hashtags como #doacoesjf, #juizdefora, #enchentejf, #solidariedadejf
+- Posts de igrejas, escolas, ONGs e comércios locais que estejam recebendo doações
+- Abrigos temporários e pontos de apoio criados pela Defesa Civil ou comunidade
+
+Dicas para encontrar informações relevantes:
+- Procure por posts recentes mencionando "doação", "arrecadação", "enchente", "abrigo" em Juiz de Fora
+- Verifique se há novos pontos de coleta em lojas, igrejas, escolas ou instituições
+- Identifique itens específicos que cada ponto está precisando (ex: fraldas, ração, cadeira de rodas)
+- Verifique se algum ponto parou de receber doações ou mudou de endereço
 
 IMPORTANTE: Retorne APENAS informações que você tenha confiança razoável de serem verdadeiras e atuais. Não invente dados. Se não houver informações novas, retorne listas vazias.
 

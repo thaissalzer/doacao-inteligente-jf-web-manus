@@ -23,3 +23,10 @@
 - [x] Fix: textos truncados nos cards de necessidades na versão mobile (quebra de texto)
 - [x] Ordenar pontos com necessidades urgentes primeiro na lista
 - [x] Adicionar ponto de coleta Flaviense com necessidades (água, alimentos, higiene)
+- [x] Adicionar ponto: Pet Cães e Cia (BH) com necessidades urgentes
+- [x] Adicionar ponto: Praça CEU Prefeitura JF (Benfica) com necessidades urgentes
+- [x] Adicionar ponto: Paróquia Santa Rita de Cássia JF (Bonfim) com necessidades urgentes
+- [x] Adicionar ponto: Instituto Jesus (Nossa Sra. de Lourdes) com necessidades urgentes
+- [x] Adicionar ponto: Estação São Pedro com necessidades urgentes
+- [x] Atualizar ponto: Escola Municipal Amélia Mascarenhas com necessidade urgente (cadeira de rodas)
+- [x] Aprimorar prompt do LLM com fontes de redes sociais (Threads, Instagram)

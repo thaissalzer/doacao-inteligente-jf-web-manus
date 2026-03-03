@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO necessidades (pontoId, categoria, item, status)\nSELECT id, 'Outros', 'Materiais em geral', 'URGENTE' FROM pontos WHERE nome = 'Instituto Jesus'\nUNION ALL\nSELECT id, 'Água', 'Água mineral', 'URGENTE' FROM pontos WHERE nome = 'Instituto Jesus';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute INSERT INTO necessidades (pontoId, categoria, item, status)\nSELECT id, 'Outros', 'Materiais em geral', 'URGENTE' FROM pontos WHERE nome = 'Instituto Jesus'\nUNION ALL\nSELECT id, 'Água', 'Água mineral', 'URGENTE' FROM pontos WHERE nome = 'Instituto Jesus';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 71
+}
