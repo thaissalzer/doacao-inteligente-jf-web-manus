@@ -320,7 +320,7 @@ export default function Home() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-200">
                 solidariedade
               </span>{" "}
-              de todo o Brasil com eficiência
+              de todo o Brasil para Juiz de Fora e região
             </h1>
             <p className="mt-6 text-lg md:text-xl text-white/80 leading-relaxed max-w-2xl">
               Saiba exatamente o que cada ponto de arrecadação em Juiz de Fora precisa.
