@@ -1,0 +1,1 @@
+ALTER TABLE `pontos` ADD `cidade` varchar(255) DEFAULT 'Juiz de Fora' NOT NULL;

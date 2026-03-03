@@ -22,6 +22,13 @@
       "when": 1772538453855,
       "tag": "0002_slimy_triton",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1772541576243,
+      "tag": "0003_useful_black_widow",
+      "breakpoints": true
     }
   ]
 }

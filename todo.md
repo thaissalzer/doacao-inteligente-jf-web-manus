@@ -33,3 +33,6 @@
 - [x] Exibir data da última atualização (último cadastro de necessidade) em cada card de ponto
 - [x] Atualizar hero da landing page: destaque para doações de todo o Brasil
 - [x] Adicionar rodapé com info da desenvolvedora, modelo de IA e convite para contribuição
+- [x] Adicionar campo cidade ao schema de pontos
+- [x] Atualizar filtro de bairro para exibir bairro/cidade
+- [x] Adicionar link do Google Maps ao lado de cada endereço nos cards

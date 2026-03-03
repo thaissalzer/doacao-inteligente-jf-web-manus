@@ -20,6 +20,7 @@ export const pontos = mysqlTable("pontos", {
   nome: varchar("nome", { length: 255 }).notNull(),
   tipo: mysqlEnum("tipo", ["Ponto de arrecadação", "Abrigo"]).default("Ponto de arrecadação").notNull(),
   bairro: varchar("bairro", { length: 255 }).notNull(),
+  cidade: varchar("cidade", { length: 255 }).default("Juiz de Fora").notNull(),
   endereco: varchar("endereco", { length: 500 }).default(""),
   horario: varchar("horario", { length: 255 }).default(""),
   descricao: text("descricao"),

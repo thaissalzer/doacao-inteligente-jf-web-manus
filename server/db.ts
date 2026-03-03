@@ -145,12 +145,12 @@ export async function getBairros() {
   if (!db) return [];
 
   const result = await db
-    .selectDistinct({ bairro: pontos.bairro })
+    .selectDistinct({ bairro: pontos.bairro, cidade: pontos.cidade })
     .from(pontos)
     .where(eq(pontos.ativo, true))
-    .orderBy(pontos.bairro);
+    .orderBy(pontos.cidade, pontos.bairro);
 
-  return result.map(r => r.bairro);
+  return result.map(r => ({ bairro: r.bairro, cidade: r.cidade }));
 }
 
 // ==================== NECESSIDADES ====================

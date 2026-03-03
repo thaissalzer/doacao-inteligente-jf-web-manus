@@ -62,6 +62,7 @@ export const appRouter = router({
         nome: z.string().min(1),
         tipo: z.enum(["Ponto de arrecadação", "Abrigo"]),
         bairro: z.string().min(1),
+        cidade: z.string().optional(),
         endereco: z.string().optional(),
         horario: z.string().optional(),
         descricao: z.string().optional(),
@@ -76,7 +77,7 @@ export const appRouter = router({
         try {
           await notifyOwner({
             title: "Novo ponto de doação cadastrado",
-            content: `O ponto "${input.nome}" foi cadastrado no bairro ${input.bairro}. Endereço: ${input.endereco || "não informado"}.`,
+            content: `O ponto "${input.nome}" foi cadastrado no bairro ${input.bairro}${input.cidade ? " - " + input.cidade : ""}. Endereço: ${input.endereco || "não informado"}.`,
           });
         } catch (e) {
           console.warn("Failed to notify owner:", e);
@@ -90,6 +91,7 @@ export const appRouter = router({
         nome: z.string().min(1).optional(),
         tipo: z.enum(["Ponto de arrecadação", "Abrigo"]).optional(),
         bairro: z.string().min(1).optional(),
+        cidade: z.string().optional(),
         endereco: z.string().optional(),
         horario: z.string().optional(),
         descricao: z.string().optional(),

@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Heart, MapPin, Clock, Phone, Search, Filter,
-  AlertTriangle, CheckCircle, Info, Shield, RefreshCw, CalendarClock,
+  AlertTriangle, CheckCircle, Info, Shield, RefreshCw, CalendarClock, ExternalLink,
 } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -182,7 +182,7 @@ function PontoCard({ ponto }: { ponto: any }) {
                 {ponto.tipo}
               </Badge>
               <span className="text-xs">•</span>
-              <span className="text-xs break-words">{ponto.bairro}</span>
+              <span className="text-xs break-words">{ponto.bairro}{ponto.cidade && ponto.cidade !== "Juiz de Fora" ? ` - ${ponto.cidade}` : ""}</span>
             </div>
           </div>
           {urgentCount > 0 && (
@@ -196,7 +196,16 @@ function PontoCard({ ponto }: { ponto: any }) {
         {ponto.endereco && ponto.endereco !== "—" && (
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
-            <span>{ponto.endereco}</span>
+            <span className="flex-1">{ponto.endereco}</span>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ponto.endereco + (ponto.cidade ? ", " + ponto.cidade : ", Juiz de Fora"))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-emerald-600 hover:text-emerald-800 transition-colors"
+              title="Abrir no Google Maps"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         )}
         {ponto.horario && ponto.horario !== "—" && (
@@ -281,12 +290,15 @@ export default function Pontos() {
         (p: any) =>
           p.nome.toLowerCase().includes(term) ||
           p.bairro.toLowerCase().includes(term) ||
+          (p.cidade && p.cidade.toLowerCase().includes(term)) ||
           (p.endereco && p.endereco.toLowerCase().includes(term))
       );
     }
 
     if (selectedBairro && selectedBairro !== "all") {
-      result = result.filter((p: any) => p.bairro === selectedBairro);
+      // Formato: "bairro|cidade"
+      const [filterBairro, filterCidade] = selectedBairro.split("|");
+      result = result.filter((p: any) => p.bairro === filterBairro && (p.cidade || "Juiz de Fora") === filterCidade);
     }
 
     if (selectedCategoria && selectedCategoria !== "all" && allNecessidades) {
@@ -381,15 +393,19 @@ export default function Pontos() {
             />
           </div>
           <Select value={selectedBairro} onValueChange={setSelectedBairro}>
-            <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectTrigger className="w-full sm:w-[240px]">
               <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-              <SelectValue placeholder="Bairro" />
+              <SelectValue placeholder="Bairro / Cidade" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os bairros</SelectItem>
-              {bairros?.map((b: string) => (
-                <SelectItem key={b} value={b}>{b}</SelectItem>
-              ))}
+              {bairros?.map((b: { bairro: string; cidade: string }) => {
+                const key = `${b.bairro}|${b.cidade}`;
+                const label = b.cidade !== "Juiz de Fora" ? `${b.bairro} - ${b.cidade}` : b.bairro;
+                return (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <Select value={selectedCategoria} onValueChange={setSelectedCategoria}>

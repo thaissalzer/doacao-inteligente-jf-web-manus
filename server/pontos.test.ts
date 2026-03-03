@@ -108,14 +108,17 @@ describe("pontos.getStats", () => {
 });
 
 describe("pontos.getBairros", () => {
-  it("returns an array of bairro strings", async () => {
+  it("returns an array of bairro/cidade objects", async () => {
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.pontos.getBairros();
     expect(Array.isArray(result)).toBe(true);
     if (result.length > 0) {
-      expect(typeof result[0]).toBe("string");
+      expect(result[0]).toHaveProperty("bairro");
+      expect(result[0]).toHaveProperty("cidade");
+      expect(typeof result[0].bairro).toBe("string");
+      expect(typeof result[0].cidade).toBe("string");
     }
   });
 });
