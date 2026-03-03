@@ -1,17 +1,7 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +15,47 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const pontos = mysqlTable("pontos", {
+  id: int("id").autoincrement().primaryKey(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  tipo: mysqlEnum("tipo", ["Ponto de arrecadação", "Abrigo"]).default("Ponto de arrecadação").notNull(),
+  bairro: varchar("bairro", { length: 255 }).notNull(),
+  endereco: varchar("endereco", { length: 500 }).default(""),
+  horario: varchar("horario", { length: 255 }).default(""),
+  descricao: text("descricao"),
+  contatoNome: varchar("contatoNome", { length: 255 }).default(""),
+  contatoWhats: varchar("contatoWhats", { length: 50 }).default(""),
+  contatoEmail: varchar("contatoEmail", { length: 320 }).default(""),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  ativo: boolean("ativo").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Ponto = typeof pontos.$inferSelect;
+export type InsertPonto = typeof pontos.$inferInsert;
+
+export const necessidades = mysqlTable("necessidades", {
+  id: int("id").autoincrement().primaryKey(),
+  pontoId: int("pontoId").notNull(),
+  categoria: mysqlEnum("categoria", [
+    "Alimentos",
+    "Roupas",
+    "Produtos de Higiene",
+    "Material de Limpeza",
+    "Colchões e Cobertores",
+    "Água",
+    "Medicamentos",
+    "Outros",
+  ]).notNull(),
+  item: varchar("item", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["URGENTE", "PRECISA", "OK"]).default("PRECISA").notNull(),
+  observacao: text("observacao"),
+  updatedBy: varchar("updatedBy", { length: 255 }).default(""),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Necessidade = typeof necessidades.$inferSelect;
+export type InsertNecessidade = typeof necessidades.$inferInsert;
