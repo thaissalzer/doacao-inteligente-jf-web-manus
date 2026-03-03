@@ -1,0 +1,23 @@
+CREATE TABLE `sugestoes` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`tipo` enum('novo_ponto','nova_necessidade','atualizar_necessidade') NOT NULL,
+	`statusAprovacao` enum('pendente','aprovada','rejeitada') NOT NULL DEFAULT 'pendente',
+	`pontoNome` varchar(255),
+	`pontoTipo` varchar(50),
+	`pontoBairro` varchar(255),
+	`pontoCidade` varchar(255),
+	`pontoEndereco` varchar(500),
+	`pontoDescricao` text,
+	`pontoId` int,
+	`pontoRefNome` varchar(255),
+	`necessidadeCategoria` varchar(100),
+	`necessidadeItem` varchar(255),
+	`necessidadeStatus` varchar(20),
+	`necessidadeId` int,
+	`fonte` varchar(500),
+	`updateLogId` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`reviewedAt` timestamp,
+	`reviewedBy` varchar(255),
+	CONSTRAINT `sugestoes_id` PRIMARY KEY(`id`)
+);

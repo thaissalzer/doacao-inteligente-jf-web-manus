@@ -36,3 +36,9 @@
 - [x] Adicionar campo cidade ao schema de pontos
 - [x] Atualizar filtro de bairro para exibir bairro/cidade
 - [x] Adicionar link do Google Maps ao lado de cada endereço nos cards
+- [x] Schema: tabela de sugestões pendentes (pontos e necessidades aguardando aprovação)
+- [x] Backend: autoUpdate salva como sugestões pendentes ao invés de publicar direto
+- [x] Backend: rotas de aprovar/rejeitar sugestões pendentes (admin)
+- [x] Frontend admin: aba de aprovação com lista de sugestões pendentes
+- [x] Ajustar cron para rodar apenas 1x/dia às 9h da manhã
+- [x] Testes vitest para o sistema de aprovação

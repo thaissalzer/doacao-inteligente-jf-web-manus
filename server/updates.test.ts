@@ -143,3 +143,107 @@ describe("updates.triggerUpdate (admin only)", () => {
     expect(result).toHaveProperty("message");
   });
 });
+
+describe("sugestoes.list (admin only)", () => {
+  it("returns an array of sugestoes for admin users", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.sugestoes.list({});
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("filters by status when provided", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.sugestoes.list({ status: "pendente" });
+    expect(Array.isArray(result)).toBe(true);
+    for (const s of result) {
+      expect(s.status).toBe("pendente");
+    }
+  });
+
+  it("rejects list access from regular user", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.list({})).rejects.toThrow();
+  });
+
+  it("rejects list access from public user", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.list({})).rejects.toThrow();
+  });
+});
+
+describe("sugestoes.countPending (admin only)", () => {
+  it("returns a number for admin users", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.sugestoes.countPending();
+    expect(typeof result).toBe("number");
+    expect(result).toBeGreaterThanOrEqual(0);
+  });
+
+  it("rejects from regular user", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.countPending()).rejects.toThrow();
+  });
+});
+
+describe("sugestoes.approve (admin only)", () => {
+  it("rejects from regular user", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.approve({ id: 999 })).rejects.toThrow();
+  });
+
+  it("rejects from public user", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.approve({ id: 999 })).rejects.toThrow();
+  });
+});
+
+describe("sugestoes.reject (admin only)", () => {
+  it("rejects from regular user", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.reject({ id: 999 })).rejects.toThrow();
+  });
+
+  it("rejects from public user", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.reject({ id: 999 })).rejects.toThrow();
+  });
+});
+
+describe("sugestoes.approveAll (admin only)", () => {
+  it("rejects from regular user", async () => {
+    const ctx = createUserContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(caller.sugestoes.approveAll()).rejects.toThrow();
+  });
+
+  it("allows admin to approve all", async () => {
+    const ctx = createAdminContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.sugestoes.approveAll();
+    expect(result).toHaveProperty("approved");
+    expect(result).toHaveProperty("total");
+    expect(typeof result.approved).toBe("number");
+  });
+});

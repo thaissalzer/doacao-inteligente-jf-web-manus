@@ -76,3 +76,33 @@ export const updateLogs = mysqlTable("updateLogs", {
 
 export type UpdateLog = typeof updateLogs.$inferSelect;
 export type InsertUpdateLog = typeof updateLogs.$inferInsert;
+
+// Sugestões pendentes de aprovação (geradas pelo autoUpdate)
+export const sugestoes = mysqlTable("sugestoes", {
+  id: int("id").autoincrement().primaryKey(),
+  tipo: mysqlEnum("tipo", ["novo_ponto", "nova_necessidade", "atualizar_necessidade"]).notNull(),
+  status: mysqlEnum("statusAprovacao", ["pendente", "aprovada", "rejeitada"]).default("pendente").notNull(),
+  // Dados do ponto (para novo_ponto)
+  pontoNome: varchar("pontoNome", { length: 255 }),
+  pontoTipo: varchar("pontoTipo", { length: 50 }),
+  pontoBairro: varchar("pontoBairro", { length: 255 }),
+  pontoCidade: varchar("pontoCidade", { length: 255 }),
+  pontoEndereco: varchar("pontoEndereco", { length: 500 }),
+  pontoDescricao: text("pontoDescricao"),
+  // Dados da necessidade (para nova_necessidade / atualizar_necessidade)
+  pontoId: int("pontoId"),
+  pontoRefNome: varchar("pontoRefNome", { length: 255 }),
+  necessidadeCategoria: varchar("necessidadeCategoria", { length: 100 }),
+  necessidadeItem: varchar("necessidadeItem", { length: 255 }),
+  necessidadeStatus: varchar("necessidadeStatus", { length: 20 }),
+  necessidadeId: int("necessidadeId"),
+  // Metadados
+  fonte: varchar("fonte", { length: 500 }),
+  updateLogId: int("updateLogId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewedBy: varchar("reviewedBy", { length: 255 }),
+});
+
+export type Sugestao = typeof sugestoes.$inferSelect;
+export type InsertSugestao = typeof sugestoes.$inferInsert;

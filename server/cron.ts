@@ -1,46 +1,63 @@
 import { runAutoUpdate } from "./autoUpdate";
 
-const INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 horas
-const INITIAL_DELAY_MS = 60 * 1000; // 1 minuto após iniciar o servidor
-
 let cronTimer: ReturnType<typeof setInterval> | null = null;
 
 /**
- * Inicia o cron job de atualização automática diária.
- * Executa a primeira vez após 1 minuto e depois a cada 24 horas.
+ * Calcula os milissegundos até a próxima execução às 9h (horário de Brasília, UTC-3).
  */
-export function startCronJobs() {
-  console.log("[Cron] Agendando atualização automática diária...");
+function msUntilNext9amBRT(): number {
+  const now = new Date();
+  // Horário de Brasília = UTC - 3
+  const brtOffsetMs = -3 * 60 * 60 * 1000;
+  const nowBRT = new Date(now.getTime() + brtOffsetMs);
 
-  // Primeira execução após delay inicial
-  setTimeout(async () => {
-    console.log("[Cron] Executando primeira atualização automática...");
+  // Próxima 9h BRT
+  const next9am = new Date(nowBRT);
+  next9am.setUTCHours(9, 0, 0, 0);
+
+  // Se já passou das 9h hoje, agendar para amanhã
+  if (nowBRT.getUTCHours() >= 9) {
+    next9am.setUTCDate(next9am.getUTCDate() + 1);
+  }
+
+  // Converter de volta para UTC
+  const next9amUTC = new Date(next9am.getTime() - brtOffsetMs);
+  return next9amUTC.getTime() - now.getTime();
+}
+
+/**
+ * Agenda a próxima execução às 9h BRT.
+ */
+function scheduleNext() {
+  const ms = msUntilNext9amBRT();
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+
+  console.log(`[Cron] Próxima atualização em ${hours}h${minutes}min (às 9h BRT).`);
+
+  cronTimer = setTimeout(async () => {
+    console.log("[Cron] Executando atualização automática das 9h...");
     try {
       await runAutoUpdate();
     } catch (e) {
-      console.error("[Cron] Erro na primeira execução:", e);
+      console.error("[Cron] Erro na execução agendada:", e);
     }
+    // Agendar a próxima execução
+    scheduleNext();
+  }, ms);
+}
 
-    // Agendar execuções subsequentes a cada 24 horas
-    cronTimer = setInterval(async () => {
-      console.log("[Cron] Executando atualização automática agendada...");
-      try {
-        await runAutoUpdate();
-      } catch (e) {
-        console.error("[Cron] Erro na execução agendada:", e);
-      }
-    }, INTERVAL_MS);
-  }, INITIAL_DELAY_MS);
-
-  console.log(
-    `[Cron] Primeira execução em ${INITIAL_DELAY_MS / 1000}s, ` +
-    `depois a cada ${INTERVAL_MS / 1000 / 60 / 60}h.`
-  );
+/**
+ * Inicia o cron job de atualização automática diária às 9h BRT.
+ */
+export function startCronJobs() {
+  console.log("[Cron] Agendando atualização automática diária às 9h (horário de Brasília)...");
+  scheduleNext();
 }
 
 export function stopCronJobs() {
   if (cronTimer) {
-    clearInterval(cronTimer);
+    clearTimeout(cronTimer);
     cronTimer = null;
     console.log("[Cron] Jobs parados.");
   }

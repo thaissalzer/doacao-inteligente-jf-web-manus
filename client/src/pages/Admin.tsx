@@ -18,7 +18,8 @@ import { toast } from "sonner";
 import {
   Heart, MapPin, Package, Plus, Pencil, Trash2, Shield, LogOut,
   AlertTriangle, Info, CheckCircle, LayoutDashboard, Users, BarChart3,
-  RefreshCw, CalendarClock, Play,
+  RefreshCw, CalendarClock, Play, ClipboardCheck, ThumbsUp, ThumbsDown,
+  CheckCheck, Eye, Clock,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -491,16 +492,225 @@ function formatDate(date: Date | string | null | undefined): string {
   });
 }
 
+// ==================== SUGESTÕES TAB ====================
+
+function SugestoesTab() {
+  const [filter, setFilter] = useState<string>("pendente");
+  const { data: sugestoesList, isLoading } = trpc.sugestoes.list.useQuery({ status: filter || undefined });
+  const { data: pendingCount } = trpc.sugestoes.countPending.useQuery();
+  const utils = trpc.useUtils();
+
+  const approveMutation = trpc.sugestoes.approve.useMutation({
+    onSuccess: () => {
+      utils.sugestoes.list.invalidate();
+      utils.sugestoes.countPending.invalidate();
+      utils.pontos.list.invalidate();
+      utils.necessidades.list.invalidate();
+      utils.pontos.getStats.invalidate();
+      toast.success("Sugestão aprovada e aplicada!");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const rejectMutation = trpc.sugestoes.reject.useMutation({
+    onSuccess: () => {
+      utils.sugestoes.list.invalidate();
+      utils.sugestoes.countPending.invalidate();
+      toast.success("Sugestão rejeitada.");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const approveAllMutation = trpc.sugestoes.approveAll.useMutation({
+    onSuccess: (data) => {
+      utils.sugestoes.list.invalidate();
+      utils.sugestoes.countPending.invalidate();
+      utils.pontos.list.invalidate();
+      utils.necessidades.list.invalidate();
+      utils.pontos.getStats.invalidate();
+      toast.success(`${data.approved} sugestões aprovadas!`);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  function tipoLabel(tipo: string) {
+    if (tipo === "novo_ponto") return { text: "Novo Ponto", color: "bg-blue-100 text-blue-700 border-blue-200" };
+    if (tipo === "nova_necessidade") return { text: "Nova Necessidade", color: "bg-emerald-100 text-emerald-700 border-emerald-200" };
+    return { text: "Atualizar Necessidade", color: "bg-amber-100 text-amber-700 border-amber-200" };
+  }
+
+  function statusLabel(status: string) {
+    if (status === "pendente") return { text: "Pendente", color: "bg-yellow-100 text-yellow-700 border-yellow-200" };
+    if (status === "aprovada") return { text: "Aprovada", color: "bg-emerald-100 text-emerald-700 border-emerald-200" };
+    return { text: "Rejeitada", color: "bg-red-100 text-red-700 border-red-200" };
+  }
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <ClipboardCheck className="w-5 h-5 text-emerald-600" />
+            Aprovação de Sugestões
+            {(pendingCount ?? 0) > 0 && (
+              <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 ml-2">
+                {pendingCount} pendente{(pendingCount ?? 0) > 1 ? "s" : ""}
+              </Badge>
+            )}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Revise e aprove as sugestões geradas pela busca automática antes de publicá-las no site.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {(pendingCount ?? 0) > 0 && (
+            <Button
+              onClick={() => approveAllMutation.mutate()}
+              disabled={approveAllMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
+            >
+              {approveAllMutation.isPending ? (
+                <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Aprovando...</>
+              ) : (
+                <><CheckCheck className="w-4 h-4 mr-2" />Aprovar Todas</>
+              )}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="flex gap-2 mb-4">
+        {["pendente", "aprovada", "rejeitada", ""].map((s) => (
+          <Button
+            key={s || "all"}
+            variant={filter === s ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilter(s)}
+            className={filter === s ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+          >
+            {s === "pendente" ? "Pendentes" : s === "aprovada" ? "Aprovadas" : s === "rejeitada" ? "Rejeitadas" : "Todas"}
+          </Button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}</div>
+      ) : sugestoesList && sugestoesList.length > 0 ? (
+        <div className="space-y-3">
+          {sugestoesList.map((s: any) => {
+            const tipo = tipoLabel(s.tipo);
+            const status = statusLabel(s.status);
+            return (
+              <Card key={s.id} className={`border-l-4 ${
+                s.status === "pendente" ? "border-l-yellow-400" :
+                s.status === "aprovada" ? "border-l-emerald-400" : "border-l-red-400"
+              }`}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className={tipo.color}>{tipo.text}</Badge>
+                      <Badge className={status.color}>{status.text}</Badge>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatDate(s.createdAt)}
+                      </span>
+                    </div>
+
+                    {s.tipo === "novo_ponto" ? (
+                      <div className="space-y-1">
+                        <p className="font-medium">{s.pontoNome}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {s.pontoTipo} • {s.pontoBairro}{s.pontoCidade && s.pontoCidade !== "Juiz de Fora" ? ` - ${s.pontoCidade}` : ""}
+                        </p>
+                        {s.pontoEndereco && (
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />{s.pontoEndereco}
+                          </p>
+                        )}
+                        {s.pontoDescricao && (
+                          <p className="text-sm text-muted-foreground">{s.pontoDescricao}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="font-medium">{s.pontoRefNome || `Ponto #${s.pontoId}`}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {s.necessidadeCategoria && (
+                            <Badge variant="outline" className="text-xs">{s.necessidadeCategoria}</Badge>
+                          )}
+                          {s.necessidadeItem && (
+                            <span className="text-sm">{s.necessidadeItem}</span>
+                          )}
+                          {s.necessidadeStatus && (
+                            <StatusBadge status={s.necessidadeStatus} />
+                          )}
+                        </div>
+                        {s.tipo === "atualizar_necessidade" && (
+                          <p className="text-xs text-muted-foreground">Atualizar status da necessidade #{s.necessidadeId}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {s.fonte && (
+                      <p className="text-xs text-muted-foreground italic">Fonte: {s.fonte}</p>
+                    )}
+
+                    {s.status === "pendente" && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          onClick={() => approveMutation.mutate({ id: s.id })}
+                          disabled={approveMutation.isPending}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          <ThumbsUp className="w-3 h-3 mr-1" />Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => rejectMutation.mutate({ id: s.id })}
+                          disabled={rejectMutation.isPending}
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          <ThumbsDown className="w-3 h-3 mr-1" />Rejeitar
+                        </Button>
+                      </div>
+                    )}
+
+                    {s.reviewedAt && (
+                      <p className="text-xs text-muted-foreground">
+                        Revisado por {s.reviewedBy || "Admin"} em {formatDate(s.reviewedAt)}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground">
+          <ClipboardCheck className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p>Nenhuma sugestão {filter === "pendente" ? "pendente" : filter ? filter : ""} encontrada.</p>
+          <p className="text-sm mt-1">As sugestões aparecem aqui após a busca automática diária (9h) ou manual.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function UpdatesTab() {
   const { data: logs, isLoading } = trpc.updates.logs.useQuery({ limit: 20 });
   const utils = trpc.useUtils();
   const triggerMutation = trpc.updates.triggerUpdate.useMutation({
     onSuccess: () => {
-      toast.success("Atualização iniciada! Aguarde alguns minutos.");
-      // Poll for updates
+      toast.success("Busca iniciada! As sugestões aparecerão na aba de aprovação.");
       setTimeout(() => {
         utils.updates.logs.invalidate();
         utils.updates.lastUpdate.invalidate();
+        utils.sugestoes.list.invalidate();
+        utils.sugestoes.countPending.invalidate();
       }, 10000);
     },
     onError: (e) => toast.error(e.message),
@@ -512,7 +722,7 @@ function UpdatesTab() {
         <div>
           <h2 className="text-xl font-semibold">Atualizações Automáticas</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            O sistema busca automaticamente informações atualizadas sobre pontos de doação em JF a cada 24 horas.
+            O sistema busca informações diariamente às 9h (horário de Brasília). As sugestões ficam pendentes para sua aprovação.
           </p>
         </div>
         <Button
@@ -733,6 +943,10 @@ export default function Admin() {
               <Package className="w-4 h-4 mr-2" />
               Necessidades
             </TabsTrigger>
+            <TabsTrigger value="sugestoes" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <ClipboardCheck className="w-4 h-4 mr-2" />
+              Aprovação
+            </TabsTrigger>
             <TabsTrigger value="updates" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
               <RefreshCw className="w-4 h-4 mr-2" />
               Atualizações
@@ -747,6 +961,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="necessidades">
             <NecessidadesTab />
+          </TabsContent>
+          <TabsContent value="sugestoes">
+            <SugestoesTab />
           </TabsContent>
           <TabsContent value="updates">
             <UpdatesTab />

@@ -20,7 +20,7 @@ import {
   seedPontosOficiais,
 } from "./db";
 import { notifyOwner } from "./_core/notification";
-import { runAutoUpdate, getLastUpdateLog, getUpdateLogs } from "./autoUpdate";
+import { runAutoUpdate, getLastUpdateLog, getUpdateLogs, listSugestoes, countPendingSugestoes, aproveSugestao, rejectSugestao, approveAllPending } from "./autoUpdate";
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
@@ -183,9 +183,32 @@ export const appRouter = router({
       .query(({ input }) => getUpdateLogs(input?.limit ?? 10)),
 
     triggerUpdate: adminProcedure.mutation(async () => {
-      // Executar em background para não bloquear a resposta
       runAutoUpdate().catch((e) => console.error("[ManualUpdate] Erro:", e));
-      return { success: true, message: "Atualização iniciada em background." };
+      return { success: true, message: "Busca iniciada. As sugestões aparecerão na aba de aprovação." };
+    }),
+  }),
+
+  sugestoes: router({
+    list: adminProcedure
+      .input(z.object({ status: z.string().optional() }).optional())
+      .query(({ input }) => listSugestoes(input?.status)),
+
+    countPending: adminProcedure.query(() => countPendingSugestoes()),
+
+    approve: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        return aproveSugestao(input.id, ctx.user.name ?? "Admin");
+      }),
+
+    reject: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        return rejectSugestao(input.id, ctx.user.name ?? "Admin");
+      }),
+
+    approveAll: adminProcedure.mutation(async ({ ctx }) => {
+      return approveAllPending(ctx.user.name ?? "Admin");
     }),
   }),
 });

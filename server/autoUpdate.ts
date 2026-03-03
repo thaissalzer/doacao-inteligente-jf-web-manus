@@ -1,7 +1,7 @@
 import { invokeLLM } from "./_core/llm";
 import { getDb } from "./db";
-import { pontos, necessidades, updateLogs } from "../drizzle/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { pontos, necessidades, updateLogs, sugestoes, type InsertSugestao } from "../drizzle/schema";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
 
 const CATEGORIAS_VALIDAS = [
@@ -25,6 +25,7 @@ type LLMResponse = {
     nome: string;
     tipo: "Ponto de arrecadação" | "Abrigo";
     bairro: string;
+    cidade?: string;
     endereco?: string;
     horario?: string;
     descricao?: string;
@@ -120,11 +121,12 @@ Responda APENAS com JSON válido no formato especificado.`,
                   nome: { type: "string" },
                   tipo: { type: "string", enum: ["Ponto de arrecadação", "Abrigo"] },
                   bairro: { type: "string" },
+                  cidade: { type: "string" },
                   endereco: { type: "string" },
                   horario: { type: "string" },
                   descricao: { type: "string" },
                 },
-                required: ["nome", "tipo", "bairro", "endereco", "horario", "descricao"],
+                required: ["nome", "tipo", "bairro", "cidade", "endereco", "horario", "descricao"],
                 additionalProperties: false,
               },
             },
@@ -149,21 +151,19 @@ Responda APENAS com JSON válido no formato especificado.`,
 }
 
 /**
- * Aplica as atualizações retornadas pelo LLM no banco de dados.
+ * Salva as atualizações como sugestões pendentes de aprovação.
  */
-async function applyUpdates(data: LLMResponse) {
+async function saveAsSugestoes(data: LLMResponse, logId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  let pontosAtualizados = 0;
-  let necessidadesAdicionadas = 0;
-  let necessidadesAtualizadas = 0;
+  let totalSugestoes = 0;
 
   // Buscar todos os pontos existentes
   const allPontos = await db.select().from(pontos).where(eq(pontos.ativo, true));
   const pontosByName = new Map(allPontos.map((p) => [p.nome.toLowerCase().trim(), p]));
 
-  // Aplicar atualizações de necessidades
+  // Salvar atualizações de necessidades como sugestões
   for (const update of data.atualizacoes) {
     const ponto = pontosByName.get(update.pontoNome.toLowerCase().trim());
     if (!ponto) continue;
@@ -185,62 +185,62 @@ async function applyUpdates(data: LLMResponse) {
     );
 
     if (existingNec) {
-      // Atualizar status se diferente
+      // Sugestão de atualização de necessidade existente
       if (existingNec.status !== update.status) {
-        await db
-          .update(necessidades)
-          .set({
-            status: update.status as any,
-            observacao: update.observacao || existingNec.observacao,
-            updatedBy: "Atualização automática",
-          })
-          .where(eq(necessidades.id, existingNec.id));
-        necessidadesAtualizadas++;
+        await db.insert(sugestoes).values({
+          tipo: "atualizar_necessidade",
+          pontoId: ponto.id,
+          pontoRefNome: ponto.nome,
+          necessidadeId: existingNec.id,
+          necessidadeCategoria: update.categoria,
+          necessidadeItem: update.item,
+          necessidadeStatus: update.status,
+          fonte: update.observacao || "",
+          updateLogId: logId,
+        });
+        totalSugestoes++;
       }
     } else {
-      // Criar nova necessidade
-      await db.insert(necessidades).values({
+      // Sugestão de nova necessidade
+      await db.insert(sugestoes).values({
+        tipo: "nova_necessidade",
         pontoId: ponto.id,
-        categoria: update.categoria as any,
-        item: update.item,
-        status: update.status as any,
-        observacao: update.observacao || "",
-        updatedBy: "Atualização automática",
+        pontoRefNome: ponto.nome,
+        necessidadeCategoria: update.categoria,
+        necessidadeItem: update.item,
+        necessidadeStatus: update.status,
+        fonte: update.observacao || "",
+        updateLogId: logId,
       });
-      necessidadesAdicionadas++;
+      totalSugestoes++;
     }
-
-    // Marcar ponto como atualizado
-    await db
-      .update(pontos)
-      .set({ lastAutoUpdate: new Date() })
-      .where(eq(pontos.id, ponto.id));
-    pontosAtualizados++;
   }
 
-  // Adicionar novos pontos
+  // Salvar novos pontos como sugestões
   for (const novoPonto of data.novosPontos) {
-    // Verificar se já existe
     const exists = pontosByName.has(novoPonto.nome.toLowerCase().trim());
     if (exists) continue;
 
-    await db.insert(pontos).values({
-      nome: novoPonto.nome,
-      tipo: novoPonto.tipo as any,
-      bairro: novoPonto.bairro,
-      endereco: novoPonto.endereco || "",
-      horario: novoPonto.horario || "",
-      descricao: novoPonto.descricao || "",
-      ativo: true,
-      lastAutoUpdate: new Date(),
+    await db.insert(sugestoes).values({
+      tipo: "novo_ponto",
+      pontoNome: novoPonto.nome,
+      pontoTipo: novoPonto.tipo,
+      pontoBairro: novoPonto.bairro,
+      pontoCidade: novoPonto.cidade || "Juiz de Fora",
+      pontoEndereco: novoPonto.endereco || "",
+      pontoDescricao: novoPonto.descricao || "",
+      fonte: "",
+      updateLogId: logId,
     });
+    totalSugestoes++;
   }
 
-  return { pontosAtualizados, necessidadesAdicionadas, necessidadesAtualizadas };
+  return totalSugestoes;
 }
 
 /**
  * Executa o job completo de atualização automática.
+ * Agora salva como sugestões pendentes ao invés de aplicar diretamente.
  */
 export async function runAutoUpdate(): Promise<void> {
   const db = await getDb();
@@ -266,41 +266,38 @@ export async function runAutoUpdate(): Promise<void> {
     // Buscar atualizações via LLM
     const updates = await fetchUpdatesFromLLM(pontoNames);
 
-    // Aplicar atualizações
-    const stats = await applyUpdates(updates);
+    // Salvar como sugestões pendentes
+    const totalSugestoes = await saveAsSugestoes(updates, logId);
 
     // Atualizar log com sucesso
     await db
       .update(updateLogs)
       .set({
         status: "success",
-        pontosAtualizados: stats.pontosAtualizados,
-        necessidadesAdicionadas: stats.necessidadesAdicionadas,
-        necessidadesAtualizadas: stats.necessidadesAtualizadas,
-        resumo: updates.resumo,
+        pontosAtualizados: 0,
+        necessidadesAdicionadas: 0,
+        necessidadesAtualizadas: 0,
+        resumo: `${totalSugestoes} sugestões pendentes de aprovação. ${updates.resumo}`,
         finishedAt: new Date(),
       })
       .where(eq(updateLogs.id, logId));
 
-    console.log(
-      `[AutoUpdate] Concluído: ${stats.pontosAtualizados} pontos atualizados, ` +
-      `${stats.necessidadesAdicionadas} necessidades adicionadas, ` +
-      `${stats.necessidadesAtualizadas} necessidades atualizadas.`
-    );
+    console.log(`[AutoUpdate] Concluído: ${totalSugestoes} sugestões pendentes de aprovação.`);
 
     // Notificar owner
-    try {
-      await notifyOwner({
-        title: "Atualização automática concluída",
-        content: `Resumo: ${updates.resumo}\n\nPontos atualizados: ${stats.pontosAtualizados}\nNecessidades adicionadas: ${stats.necessidadesAdicionadas}\nNecessidades atualizadas: ${stats.necessidadesAtualizadas}`,
-      });
-    } catch (e) {
-      console.warn("[AutoUpdate] Falha ao notificar owner:", e);
+    if (totalSugestoes > 0) {
+      try {
+        await notifyOwner({
+          title: `${totalSugestoes} sugestões de atualização aguardando aprovação`,
+          content: `A busca automática encontrou ${totalSugestoes} atualizações para os pontos de doação.\n\nResumo: ${updates.resumo}\n\nAcesse o painel admin para revisar e aprovar as sugestões.`,
+        });
+      } catch (e) {
+        console.warn("[AutoUpdate] Falha ao notificar owner:", e);
+      }
     }
   } catch (error: any) {
     console.error("[AutoUpdate] Erro:", error);
 
-    // Atualizar log com erro
     await db
       .update(updateLogs)
       .set({
@@ -310,6 +307,148 @@ export async function runAutoUpdate(): Promise<void> {
       })
       .where(eq(updateLogs.id, logId));
   }
+}
+
+// ==================== SUGESTÕES ====================
+
+/**
+ * Lista sugestões pendentes.
+ */
+export async function listSugestoes(statusFilter?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [];
+  if (statusFilter) {
+    conditions.push(eq(sugestoes.status, statusFilter as any));
+  }
+
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+  return db.select().from(sugestoes).where(where).orderBy(desc(sugestoes.createdAt));
+}
+
+/**
+ * Conta sugestões pendentes.
+ */
+export async function countPendingSugestoes() {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(sugestoes)
+    .where(eq(sugestoes.status, "pendente"));
+
+  return result?.count ?? 0;
+}
+
+/**
+ * Aprova uma sugestão e aplica a mudança no banco.
+ */
+export async function aproveSugestao(id: number, reviewerName: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [sugestao] = await db.select().from(sugestoes).where(eq(sugestoes.id, id)).limit(1);
+  if (!sugestao) throw new Error("Sugestão não encontrada");
+  if (sugestao.status !== "pendente") throw new Error("Sugestão já foi processada");
+
+  if (sugestao.tipo === "novo_ponto") {
+    // Criar novo ponto
+    await db.insert(pontos).values({
+      nome: sugestao.pontoNome!,
+      tipo: (sugestao.pontoTipo as any) || "Ponto de arrecadação",
+      bairro: sugestao.pontoBairro!,
+      cidade: sugestao.pontoCidade || "Juiz de Fora",
+      endereco: sugestao.pontoEndereco || "",
+      descricao: sugestao.pontoDescricao || "",
+      ativo: true,
+      lastAutoUpdate: new Date(),
+    });
+  } else if (sugestao.tipo === "nova_necessidade") {
+    // Criar nova necessidade
+    if (sugestao.pontoId) {
+      await db.insert(necessidades).values({
+        pontoId: sugestao.pontoId,
+        categoria: sugestao.necessidadeCategoria as any,
+        item: sugestao.necessidadeItem!,
+        status: (sugestao.necessidadeStatus as any) || "PRECISA",
+        updatedBy: "Aprovação automática",
+      });
+      await db.update(pontos).set({ lastAutoUpdate: new Date() }).where(eq(pontos.id, sugestao.pontoId));
+    }
+  } else if (sugestao.tipo === "atualizar_necessidade") {
+    // Atualizar necessidade existente
+    if (sugestao.necessidadeId) {
+      await db
+        .update(necessidades)
+        .set({
+          status: (sugestao.necessidadeStatus as any) || "PRECISA",
+          updatedBy: "Aprovação automática",
+        })
+        .where(eq(necessidades.id, sugestao.necessidadeId));
+      if (sugestao.pontoId) {
+        await db.update(pontos).set({ lastAutoUpdate: new Date() }).where(eq(pontos.id, sugestao.pontoId));
+      }
+    }
+  }
+
+  // Marcar como aprovada
+  await db
+    .update(sugestoes)
+    .set({
+      status: "aprovada",
+      reviewedAt: new Date(),
+      reviewedBy: reviewerName,
+    })
+    .where(eq(sugestoes.id, id));
+
+  return { success: true };
+}
+
+/**
+ * Rejeita uma sugestão.
+ */
+export async function rejectSugestao(id: number, reviewerName: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [sugestao] = await db.select().from(sugestoes).where(eq(sugestoes.id, id)).limit(1);
+  if (!sugestao) throw new Error("Sugestão não encontrada");
+  if (sugestao.status !== "pendente") throw new Error("Sugestão já foi processada");
+
+  await db
+    .update(sugestoes)
+    .set({
+      status: "rejeitada",
+      reviewedAt: new Date(),
+      reviewedBy: reviewerName,
+    })
+    .where(eq(sugestoes.id, id));
+
+  return { success: true };
+}
+
+/**
+ * Aprova todas as sugestões pendentes de uma vez.
+ */
+export async function approveAllPending(reviewerName: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const pending = await db.select().from(sugestoes).where(eq(sugestoes.status, "pendente"));
+  let approved = 0;
+
+  for (const s of pending) {
+    try {
+      await aproveSugestao(s.id, reviewerName);
+      approved++;
+    } catch (e) {
+      console.warn(`[Sugestões] Falha ao aprovar sugestão ${s.id}:`, e);
+    }
+  }
+
+  return { approved, total: pending.length };
 }
 
 /**
