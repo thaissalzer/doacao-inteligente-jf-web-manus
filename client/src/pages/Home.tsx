@@ -232,8 +232,8 @@ function MissionSection() {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/10">
               <Shield className="w-8 h-8 text-emerald-300 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-white">Curadoria</h3>
-              <p className="text-sm text-emerald-300 mt-1">Todas as atualizações são revisadas por humanos antes de publicar</p>
+              <h3 className="text-lg font-bold text-white">IA com validação humana</h3>
+              <p className="text-sm text-emerald-300 mt-1">Parte das atualizações são revisadas por humanos antes de publicar</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/10">
               <MapPin className="w-8 h-8 text-emerald-300 mx-auto mb-3" />
