@@ -378,11 +378,19 @@ export default function Pontos() {
 
       <div className="container py-8">
         {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Pontos de Doação</h1>
-          <p className="text-muted-foreground mt-2">
-            Encontre o ponto mais próximo e veja o que cada um precisa receber.
-          </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Pontos de Doação</h1>
+            <p className="text-muted-foreground mt-2">
+              Encontre o ponto mais próximo e veja o que cada um precisa receber.
+            </p>
+          </div>
+          <Link href="/sugerir">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 shrink-0 w-full sm:w-auto">
+              <Heart className="w-4 h-4 mr-2" />
+              Sugerir ponto
+            </Button>
+          </Link>
         </div>
 
         {/* Last update banner */}

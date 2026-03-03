@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Pontos from "./pages/Pontos";
 import Mapa from "./pages/Mapa";
 import Admin from "./pages/Admin";
+import SugerirPonto from "./pages/SugerirPonto";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/pontos" component={Pontos} />
       <Route path="/mapa" component={Mapa} />
       <Route path="/admin" component={Admin} />
+      <Route path="/sugerir" component={SugerirPonto} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

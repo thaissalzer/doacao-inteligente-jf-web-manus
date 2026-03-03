@@ -209,12 +209,20 @@ export default function Home() {
           <p className="text-emerald-100 text-lg max-w-2xl mx-auto mb-8">
             Cada doação faz a diferença. Encontre o ponto mais próximo e contribua com o que puder.
           </p>
-          <Link href="/pontos">
-            <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold shadow-lg">
-              Encontrar pontos de doação
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/pontos">
+              <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold shadow-lg w-full sm:w-auto">
+                Encontrar pontos de doação
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/sugerir">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 font-semibold w-full sm:w-auto">
+                <HandHeart className="w-5 h-5 mr-2" />
+                Sugerir um ponto
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -234,12 +242,18 @@ export default function Home() {
                   As informações são atualizadas via modelo de Inteligência Artificial com base nas atualizações
                   diárias da web e também podem ser cadastradas manualmente.
                 </p>
-                <p className="text-sm text-emerald-300 leading-relaxed">
+                <p className="text-sm text-emerald-300 leading-relaxed mb-4">
                   Se quiser contribuir com informações, envie e-mail para{" "}
                   <a href="mailto:thaissalzer@gmail.com" className="text-emerald-400 hover:text-white transition-colors underline underline-offset-2">
                     thaissalzer@gmail.com
                   </a>
                 </p>
+                <Link href="/sugerir">
+                  <Button size="sm" variant="outline" className="border-emerald-500 text-emerald-300 hover:bg-emerald-800 hover:text-white">
+                    <HandHeart className="w-4 h-4 mr-1.5" />
+                    Sugerir ponto de coleta
+                  </Button>
+                </Link>
               </div>
 
               {/* Convite para devs */}

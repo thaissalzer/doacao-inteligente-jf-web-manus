@@ -43,3 +43,7 @@
 - [x] Ajustar cron para rodar apenas 1x/dia às 9h da manhã
 - [x] Testes vitest para o sistema de aprovação
 - [x] Fix: atualização travada com status 'running' que nunca finaliza (banner mostrando "em andamento" indefinidamente)
+- [x] Backend: rota pública para submeter sugestão de novo ponto de coleta
+- [x] Frontend: página de formulário público para sugerir novo ponto
+- [x] Frontend: link para o formulário na página de Pontos e na Home
+- [x] Testes vitest para a rota de sugestão pública

@@ -189,6 +189,50 @@ export const appRouter = router({
   }),
 
   sugestoes: router({
+    // Rota PÚBLICA para visitantes sugerirem novos pontos
+    submit: publicProcedure
+      .input(z.object({
+        nome: z.string().min(1, "Nome é obrigatório"),
+        tipo: z.enum(["Ponto de arrecadação", "Abrigo"]),
+        bairro: z.string().min(1, "Bairro é obrigatório"),
+        cidade: z.string().optional(),
+        endereco: z.string().optional(),
+        descricao: z.string().optional(),
+        necessidades: z.string().optional(),
+        contatoNome: z.string().optional(),
+        contatoEmail: z.string().optional(),
+        contatoWhats: z.string().optional(),
+        fonte: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await import("./db").then(m => m.getDb());
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Banco indisponível" });
+
+        const { sugestoes: sugestoesTable } = await import("../drizzle/schema");
+        await db.insert(sugestoesTable).values({
+          tipo: "novo_ponto",
+          pontoNome: input.nome,
+          pontoTipo: input.tipo,
+          pontoBairro: input.bairro,
+          pontoCidade: input.cidade || "Juiz de Fora",
+          pontoEndereco: input.endereco || "",
+          pontoDescricao: [input.descricao, input.necessidades ? `Necessidades: ${input.necessidades}` : ""].filter(Boolean).join("\n"),
+          fonte: [input.fonte || "Sugestão de visitante", input.contatoNome ? `Contato: ${input.contatoNome}` : "", input.contatoEmail ? `Email: ${input.contatoEmail}` : "", input.contatoWhats ? `WhatsApp: ${input.contatoWhats}` : ""].filter(Boolean).join(" | "),
+        });
+
+        // Notificar owner
+        try {
+          await notifyOwner({
+            title: "Nova sugestão de ponto de coleta",
+            content: `Um visitante sugeriu o ponto "${input.nome}" no bairro ${input.bairro}${input.cidade && input.cidade !== "Juiz de Fora" ? " - " + input.cidade : ""}.\n\nAcesse o painel admin > aba Aprovação para revisar.`,
+          });
+        } catch (e) {
+          console.warn("Failed to notify owner:", e);
+        }
+
+        return { success: true, message: "Sugestão enviada! Ela será revisada pela equipe antes de ser publicada." };
+      }),
+
     list: adminProcedure
       .input(z.object({ status: z.string().optional() }).optional())
       .query(({ input }) => listSugestoes(input?.status)),

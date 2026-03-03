@@ -247,3 +247,40 @@ describe("sugestoes.approveAll (admin only)", () => {
     expect(typeof result.approved).toBe("number");
   });
 });
+
+describe("sugestoes.submit (public)", () => {
+  it("accepts a valid suggestion from a public visitor", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    const result = await caller.sugestoes.submit({
+      nome: "Igreja São José",
+      tipo: "Ponto de arrecadação",
+      bairro: "Centro",
+      cidade: "Juiz de Fora",
+      endereco: "Rua Halfeld, 100",
+      descricao: "Recebendo doações de alimentos",
+      necessidades: "Alimentos não perecíveis, água mineral",
+      contatoNome: "João",
+      contatoEmail: "joao@email.com",
+      contatoWhats: "(32) 99999-9999",
+      fonte: "https://instagram.com/exemplo",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain("revisada");
+  });
+
+  it("rejects submission without required fields", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+
+    await expect(
+      caller.sugestoes.submit({
+        nome: "",
+        tipo: "Ponto de arrecadação",
+        bairro: "Centro",
+      })
+    ).rejects.toThrow();
+  });
+});
