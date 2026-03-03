@@ -13,3 +13,10 @@
 - [x] Design responsivo e profissional (mobile + desktop)
 - [x] Seed data com pontos oficiais de Juiz de Fora
 - [x] Testes vitest para rotas do servidor
+- [x] Schema: tabela de logs de atualização automática (updateLogs)
+- [x] Backend: job de busca com LLM para atualizar pontos e necessidades
+- [x] Backend: cron job diário para executar a busca automaticamente
+- [x] Backend: rota para consultar última atualização e disparar manualmente
+- [x] Frontend: exibir horário da última atualização na página de Pontos
+- [x] Frontend: exibir horário da última atualização nos cards de cada ponto
+- [x] Testes vitest para o sistema de atualização

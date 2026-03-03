@@ -20,6 +20,7 @@ import {
   seedPontosOficiais,
 } from "./db";
 import { notifyOwner } from "./_core/notification";
+import { runAutoUpdate, getLastUpdateLog, getUpdateLogs } from "./autoUpdate";
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
@@ -72,7 +73,6 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const id = await createPonto(input);
-        // Notify owner about new donation point
         try {
           await notifyOwner({
             title: "Novo ponto de doação cadastrado",
@@ -171,6 +171,20 @@ export const appRouter = router({
         await deleteNecessidade(input.id);
         return { success: true };
       }),
+  }),
+
+  updates: router({
+    lastUpdate: publicProcedure.query(() => getLastUpdateLog()),
+
+    logs: adminProcedure
+      .input(z.object({ limit: z.number().min(1).max(50).optional() }).optional())
+      .query(({ input }) => getUpdateLogs(input?.limit ?? 10)),
+
+    triggerUpdate: adminProcedure.mutation(async () => {
+      // Executar em background para não bloquear a resposta
+      runAutoUpdate().catch((e) => console.error("[ManualUpdate] Erro:", e));
+      return { success: true, message: "Atualização iniciada em background." };
+    }),
   }),
 });
 

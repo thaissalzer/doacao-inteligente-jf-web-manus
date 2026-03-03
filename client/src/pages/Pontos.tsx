@@ -6,11 +6,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, MapPin, Clock, Phone, Search, Filter, ArrowLeft, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Heart, MapPin, Clock, Phone, Search, Filter,
+  AlertTriangle, CheckCircle, Info, Shield, RefreshCw, CalendarClock,
+} from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
-import { Shield } from "lucide-react";
+
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "Nunca";
+  const d = new Date(date);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatRelativeTime(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  const d = new Date(date);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMin < 1) return "agora mesmo";
+  if (diffMin < 60) return `há ${diffMin} min`;
+  if (diffHours < 24) return `há ${diffHours}h`;
+  if (diffDays === 1) return "ontem";
+  return `há ${diffDays} dias`;
+}
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "URGENTE") {
@@ -55,6 +85,70 @@ function CategoryBadge({ categoria }: { categoria: string }) {
   );
 }
 
+function UpdateStatusBanner() {
+  const { data: lastUpdate, isLoading } = trpc.updates.lastUpdate.useQuery();
+
+  if (isLoading) return null;
+
+  const isRunning = lastUpdate?.status === "running";
+  const isError = lastUpdate?.status === "error";
+  const isSuccess = lastUpdate?.status === "success";
+  const finishedAt = lastUpdate?.finishedAt ?? lastUpdate?.startedAt;
+
+  return (
+    <div className={`rounded-xl border px-4 py-3 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 ${
+      isRunning
+        ? "bg-blue-50 border-blue-200"
+        : isError
+        ? "bg-red-50 border-red-200"
+        : "bg-emerald-50 border-emerald-200"
+    }`}>
+      <div className="flex items-center gap-2">
+        {isRunning ? (
+          <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
+        ) : (
+          <CalendarClock className={`w-4 h-4 ${isError ? "text-red-600" : "text-emerald-600"}`} />
+        )}
+        <span className={`text-sm font-medium ${
+          isRunning ? "text-blue-700" : isError ? "text-red-700" : "text-emerald-700"
+        }`}>
+          {isRunning
+            ? "Atualização em andamento..."
+            : isError
+            ? "Última atualização falhou"
+            : "Dados atualizados automaticamente"}
+        </span>
+      </div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        {finishedAt && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default">
+                {formatRelativeTime(finishedAt)} ({formatDate(finishedAt)})
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Horário da última atualização automática</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+        {isSuccess && lastUpdate?.resumo && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="hidden md:inline cursor-default max-w-[300px] truncate">
+                {lastUpdate.resumo}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm">
+              <p>{lastUpdate.resumo}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PontoCard({ ponto }: { ponto: any }) {
   const { data: necessidades } = trpc.necessidades.getByPonto.useQuery({ pontoId: ponto.id });
 
@@ -62,7 +156,7 @@ function PontoCard({ ponto }: { ponto: any }) {
   const precisaCount = necessidades?.filter((n: any) => n.status === "PRECISA").length ?? 0;
 
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 border-emerald-100 group">
+    <Card className="hover:shadow-lg transition-all duration-200 border-emerald-100 group flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
@@ -84,7 +178,7 @@ function PontoCard({ ponto }: { ponto: any }) {
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3">
+      <CardContent className="pt-0 space-y-3 flex-1 flex flex-col">
         {ponto.endereco && ponto.endereco !== "—" && (
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
@@ -106,7 +200,7 @@ function PontoCard({ ponto }: { ponto: any }) {
 
         {/* Necessidades */}
         {necessidades && necessidades.length > 0 ? (
-          <div className="pt-3 border-t border-emerald-50">
+          <div className="pt-3 border-t border-emerald-50 flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Necessidades</p>
             <div className="space-y-2">
               {necessidades.slice(0, 5).map((nec: any) => (
@@ -124,18 +218,33 @@ function PontoCard({ ponto }: { ponto: any }) {
             </div>
           </div>
         ) : (
-          <div className="pt-3 border-t border-emerald-50">
+          <div className="pt-3 border-t border-emerald-50 flex-1">
             <p className="text-sm text-muted-foreground italic">Nenhuma necessidade cadastrada ainda.</p>
           </div>
         )}
 
-        {/* Summary bar */}
-        <div className="flex items-center gap-3 pt-2">
-          {urgentCount > 0 && (
-            <span className="text-xs text-red-600 font-medium">{urgentCount} urgente{urgentCount > 1 ? "s" : ""}</span>
-          )}
-          {precisaCount > 0 && (
-            <span className="text-xs text-amber-600 font-medium">{precisaCount} necessário{precisaCount > 1 ? "s" : ""}</span>
+        {/* Footer: last update + summary */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-emerald-50">
+          <div className="flex items-center gap-3">
+            {urgentCount > 0 && (
+              <span className="text-xs text-red-600 font-medium">{urgentCount} urgente{urgentCount > 1 ? "s" : ""}</span>
+            )}
+            {precisaCount > 0 && (
+              <span className="text-xs text-amber-600 font-medium">{precisaCount} necessário{precisaCount > 1 ? "s" : ""}</span>
+            )}
+          </div>
+          {ponto.lastAutoUpdate && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-default">
+                  <RefreshCw className="w-3 h-3" />
+                  {formatRelativeTime(ponto.lastAutoUpdate)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Última atualização automática: {formatDate(ponto.lastAutoUpdate)}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </CardContent>
@@ -220,12 +329,15 @@ export default function Pontos() {
 
       <div className="container py-8">
         {/* Page header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground">Pontos de Doação</h1>
           <p className="text-muted-foreground mt-2">
             Encontre o ponto mais próximo e veja o que cada um precisa receber.
           </p>
         </div>
+
+        {/* Last update banner */}
+        <UpdateStatusBanner />
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">

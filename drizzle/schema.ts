@@ -29,6 +29,7 @@ export const pontos = mysqlTable("pontos", {
   latitude: decimal("latitude", { precision: 10, scale: 7 }),
   longitude: decimal("longitude", { precision: 10, scale: 7 }),
   ativo: boolean("ativo").default(true).notNull(),
+  lastAutoUpdate: timestamp("lastAutoUpdate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -59,3 +60,18 @@ export const necessidades = mysqlTable("necessidades", {
 
 export type Necessidade = typeof necessidades.$inferSelect;
 export type InsertNecessidade = typeof necessidades.$inferInsert;
+
+export const updateLogs = mysqlTable("updateLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  status: mysqlEnum("status", ["running", "success", "error"]).default("running").notNull(),
+  pontosAtualizados: int("pontosAtualizados").default(0),
+  necessidadesAdicionadas: int("necessidadesAdicionadas").default(0),
+  necessidadesAtualizadas: int("necessidadesAtualizadas").default(0),
+  resumo: text("resumo"),
+  erro: text("erro"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  finishedAt: timestamp("finishedAt"),
+});
+
+export type UpdateLog = typeof updateLogs.$inferSelect;
+export type InsertUpdateLog = typeof updateLogs.$inferInsert;

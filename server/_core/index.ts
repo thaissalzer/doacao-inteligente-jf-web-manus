@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { seedPontosOficiais } from "../db";
+import { startCronJobs } from "../cron";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -66,6 +67,8 @@ async function startServer() {
     } catch (e) {
       console.warn("[Seed] Falha ao inserir pontos:", e);
     }
+    // Iniciar cron jobs de atualização automática
+    startCronJobs();
   });
 }
 

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import {
   Heart, MapPin, Package, Plus, Pencil, Trash2, Shield, LogOut,
   AlertTriangle, Info, CheckCircle, LayoutDashboard, Users, BarChart3,
+  RefreshCw, CalendarClock, Play,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -478,6 +479,121 @@ function NecessidadesTab() {
   );
 }
 
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "—";
+  const d = new Date(date);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function UpdatesTab() {
+  const { data: logs, isLoading } = trpc.updates.logs.useQuery({ limit: 20 });
+  const utils = trpc.useUtils();
+  const triggerMutation = trpc.updates.triggerUpdate.useMutation({
+    onSuccess: () => {
+      toast.success("Atualização iniciada! Aguarde alguns minutos.");
+      // Poll for updates
+      setTimeout(() => {
+        utils.updates.logs.invalidate();
+        utils.updates.lastUpdate.invalidate();
+      }, 10000);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-xl font-semibold">Atualizações Automáticas</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            O sistema busca automaticamente informações atualizadas sobre pontos de doação em JF a cada 24 horas.
+          </p>
+        </div>
+        <Button
+          onClick={() => triggerMutation.mutate()}
+          disabled={triggerMutation.isPending}
+          className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
+        >
+          {triggerMutation.isPending ? (
+            <><RefreshCw className="w-4 h-4 mr-2 animate-spin" />Iniciando...</>
+          ) : (
+            <><Play className="w-4 h-4 mr-2" />Atualizar Agora</>
+          )}
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
+      ) : logs && logs.length > 0 ? (
+        <div className="space-y-3">
+          {logs.map((log: any) => (
+            <Card key={log.id} className={`border-l-4 ${
+              log.status === "running" ? "border-l-blue-500" :
+              log.status === "error" ? "border-l-red-500" : "border-l-emerald-500"
+            }`}>
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    {log.status === "running" ? (
+                      <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
+                    ) : log.status === "error" ? (
+                      <AlertTriangle className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <CheckCircle className="w-5 h-5 text-emerald-500" />
+                    )}
+                    <div>
+                      <p className="font-medium text-sm">
+                        {log.status === "running" ? "Em andamento..." :
+                         log.status === "error" ? "Falhou" : "Concluída com sucesso"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <CalendarClock className="w-3 h-3 inline mr-1" />
+                        {formatDate(log.startedAt)}
+                        {log.finishedAt && ` — ${formatDate(log.finishedAt)}`}
+                      </p>
+                    </div>
+                  </div>
+                  {log.status === "success" && (
+                    <div className="flex items-center gap-3 text-xs">
+                      <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                        {log.pontosAtualizados ?? 0} pontos
+                      </Badge>
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        +{log.necessidadesAdicionadas ?? 0} novas
+                      </Badge>
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                        {log.necessidadesAtualizadas ?? 0} atualizadas
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+                {log.resumo && (
+                  <p className="text-sm text-muted-foreground mt-2 pl-8">{log.resumo}</p>
+                )}
+                {log.erro && (
+                  <p className="text-sm text-red-600 mt-2 pl-8">{log.erro}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground">
+          <CalendarClock className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p>Nenhuma atualização realizada ainda.</p>
+          <p className="text-sm mt-1">Clique em "Atualizar Agora" para iniciar a primeira busca.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DashboardTab() {
   const { data: stats } = trpc.pontos.getStats.useQuery();
 
@@ -617,6 +733,10 @@ export default function Admin() {
               <Package className="w-4 h-4 mr-2" />
               Necessidades
             </TabsTrigger>
+            <TabsTrigger value="updates" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Atualizações
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -627,6 +747,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="necessidades">
             <NecessidadesTab />
+          </TabsContent>
+          <TabsContent value="updates">
+            <UpdatesTab />
           </TabsContent>
         </Tabs>
       </div>
