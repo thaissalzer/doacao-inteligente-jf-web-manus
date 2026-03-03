@@ -163,12 +163,12 @@ function PontoCard({ ponto }: { ponto: any }) {
             <CardTitle className="text-lg font-semibold text-foreground group-hover:text-emerald-700 transition-colors">
               {ponto.nome}
             </CardTitle>
-            <div className="flex items-center gap-1 mt-1.5 text-sm text-muted-foreground">
-              <Badge variant="outline" className="text-xs font-normal bg-emerald-50 text-emerald-700 border-emerald-200">
+            <div className="flex items-center flex-wrap gap-1 mt-1.5 text-sm text-muted-foreground">
+              <Badge variant="outline" className="text-xs font-normal bg-emerald-50 text-emerald-700 border-emerald-200 shrink-0">
                 {ponto.tipo}
               </Badge>
               <span className="text-xs">•</span>
-              <span className="text-xs">{ponto.bairro}</span>
+              <span className="text-xs break-words">{ponto.bairro}</span>
             </div>
           </div>
           {urgentCount > 0 && (
@@ -202,14 +202,14 @@ function PontoCard({ ponto }: { ponto: any }) {
         {necessidades && necessidades.length > 0 ? (
           <div className="pt-3 border-t border-emerald-50 flex-1">
             <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Necessidades</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {necessidades.slice(0, 5).map((nec: any) => (
-                <div key={nec.id} className="flex items-center justify-between gap-2 text-sm">
-                  <div className="flex items-center gap-2 min-w-0">
+                <div key={nec.id} className="flex flex-col gap-1.5 text-sm">
+                  <div className="flex items-center flex-wrap gap-1.5">
                     <CategoryBadge categoria={nec.categoria} />
-                    <span className="truncate text-foreground">{nec.item}</span>
+                    <StatusBadge status={nec.status} />
                   </div>
-                  <StatusBadge status={nec.status} />
+                  <span className="text-foreground break-words leading-snug">{nec.item}</span>
                 </div>
               ))}
               {necessidades.length > 5 && (
