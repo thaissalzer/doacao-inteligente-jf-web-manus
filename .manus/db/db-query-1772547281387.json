@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total_running FROM updateLogs WHERE status = 'running';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT COUNT(*) as total_running FROM updateLogs WHERE status = 'running';",
+  "rows": [
+    {
+      "total_running": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_running\n1\n",
+  "stderr": "",
+  "execution_time_ms": 70
+}

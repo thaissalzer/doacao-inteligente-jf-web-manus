@@ -87,43 +87,25 @@ function CategoryBadge({ categoria }: { categoria: string }) {
 
 function UpdateStatusBanner() {
   const { data: lastUpdate, isLoading } = trpc.updates.lastUpdate.useQuery(undefined, {
-    refetchInterval: 30000, // Refetch a cada 30s para atualizar status
+    refetchInterval: 60000, // Refetch a cada 60s
   });
 
-  if (isLoading) return null;
+  if (isLoading || !lastUpdate) return null;
 
-  // Se estiver "running" há mais de 10 minutos, considerar como travado/erro
-  const startedAt = lastUpdate?.startedAt ? new Date(lastUpdate.startedAt) : null;
-  const isStale = lastUpdate?.status === "running" && startedAt && 
-    (Date.now() - startedAt.getTime()) > 10 * 60 * 1000;
-  
-  const isRunning = lastUpdate?.status === "running" && !isStale;
-  const isError = lastUpdate?.status === "error" || isStale;
-  const isSuccess = lastUpdate?.status === "success";
-  const finishedAt = lastUpdate?.finishedAt ?? lastUpdate?.startedAt;
+  // Para a página pública, só mostrar a última atualização bem-sucedida
+  // Não exibir status "running" ou "error" para visitantes
+  const isSuccess = lastUpdate.status === "success";
+  const finishedAt = lastUpdate.finishedAt ?? lastUpdate.startedAt;
+
+  // Se a última atualização não foi sucesso, não mostrar nada
+  if (!isSuccess) return null;
 
   return (
-    <div className={`rounded-xl border px-4 py-3 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 ${
-      isRunning
-        ? "bg-blue-50 border-blue-200"
-        : isError
-        ? "bg-red-50 border-red-200"
-        : "bg-emerald-50 border-emerald-200"
-    }`}>
+    <div className="rounded-xl border px-4 py-3 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 bg-emerald-50 border-emerald-200">
       <div className="flex items-center gap-2">
-        {isRunning ? (
-          <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
-        ) : (
-          <CalendarClock className={`w-4 h-4 ${isError ? "text-red-600" : "text-emerald-600"}`} />
-        )}
-        <span className={`text-sm font-medium ${
-          isRunning ? "text-blue-700" : isError ? "text-red-700" : "text-emerald-700"
-        }`}>
-          {isRunning
-            ? "Atualização em andamento..."
-            : isError
-            ? "Última atualização falhou"
-            : "Dados atualizados automaticamente"}
+        <CalendarClock className="w-4 h-4 text-emerald-600" />
+        <span className="text-sm font-medium text-emerald-700">
+          Dados atualizados automaticamente
         </span>
       </div>
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -139,7 +121,7 @@ function UpdateStatusBanner() {
             </TooltipContent>
           </Tooltip>
         )}
-        {isSuccess && lastUpdate?.resumo && (
+        {lastUpdate.resumo && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="hidden md:inline cursor-default max-w-[300px] truncate">

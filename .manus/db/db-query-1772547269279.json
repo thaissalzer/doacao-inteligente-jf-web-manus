@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, status, startedAt, finishedAt, erro FROM updateLogs ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, status, startedAt, finishedAt, erro FROM updateLogs ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "30001",
+      "status": "running",
+      "startedAt": "2026-03-03 14:05:15",
+      "finishedAt": "NULL",
+      "erro": "NULL"
+    },
+    {
+      "id": "24",
+      "status": "error",
+      "startedAt": "2026-03-03 13:04:30",
+      "finishedAt": "2026-03-03 14:04:12",
+      "erro": "Atualização travada - corrigida automaticamente"
+    },
+    {
+      "id": "23",
+      "status": "success",
+      "startedAt": "2026-03-03 13:00:59",
+      "finishedAt": "2026-03-03 13:01:02",
+      "erro": "NULL"
+    },
+    {
+      "id": "22",
+      "status": "success",
+      "startedAt": "2026-03-03 12:54:44",
+      "finishedAt": "2026-03-03 12:55:03",
+      "erro": "NULL"
+    },
+    {
+      "id": "21",
+      "status": "success",
+      "startedAt": "2026-03-03 12:53:35",
+      "finishedAt": "2026-03-03 12:54:13",
+      "erro": "NULL"
+    },
+    {
+      "id": "20",
+      "status": "success",
+      "startedAt": "2026-03-03 12:46:04",
+      "finishedAt": "2026-03-03 12:46:17",
+      "erro": "NULL"
+    },
+    {
+      "id": "19",
+      "status": "error",
+      "startedAt": "2026-03-03 12:43:00",
+      "finishedAt": "2026-03-03 14:04:12",
+      "erro": "Atualização travada - corrigida automaticamente"
+    },
+    {
+      "id": "18",
+      "status": "error",
+      "startedAt": "2026-03-03 12:42:34",
+      "finishedAt": "2026-03-03 14:04:12",
+      "erro": "Atualização travada - corrigida automaticamente"
+    },
+    {
+      "id": "17",
+      "status": "success",
+      "startedAt": "2026-03-03 12:42:27",
+      "finishedAt": "2026-03-03 12:42:37",
+      "erro": "NULL"
+    },
+    {
+      "id": "16",
+      "status": "error",
+      "startedAt": "2026-03-03 12:41:11",
+      "finishedAt": "2026-03-03 14:04:12",
+      "erro": "Atualização travada - corrigida automaticamente"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tstartedAt\tfinishedAt\terro\n30001\trunning\t2026-03-03 14:05:15\tNULL\tNULL\n24\terror\t2026-03-03 13:04:30\t2026-03-03 14:04:12\tAtualização travada - corrigida automaticamente\n23\tsuccess\t2026-03-03 13:00:59\t2026-03-03 13:01:02\tNULL\n22\tsuccess\t2026-03-03 12:54:44\t2026-03-03 12:55:03\tNULL\n21\tsuccess\t2026-03-03 12:53:35\t2026-03-03 12:54:13\tNULL\n20\tsuccess\t2026-03-03 12:46:04\t2026-03-03 12:46:17\tNULL\n19\terror\t2026-03-03 12:43:00\t2026-03-03 14:04:12\tAtualização travada - corrigida automaticamente\n18\terror\t2026-03-03 12:42:34\t2026-03-03 14:04:12\tAtualização travada - corrigida automaticamente\n17\tsuccess\t2026-03-03 12:42:27\t2026-03-03 12:42:37\tNULL\n16\terror\t2026-03-03 12:41:11\t2026-03-03 14:04:12\tAtualização travada - corrigida automaticamente\n",
+  "stderr": "",
+  "execution_time_ms": 102
+}

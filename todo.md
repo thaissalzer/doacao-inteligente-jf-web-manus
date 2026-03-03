@@ -47,3 +47,4 @@
 - [x] Frontend: página de formulário público para sugerir novo ponto
 - [x] Frontend: link para o formulário na página de Pontos e na Home
 - [x] Testes vitest para a rota de sugestão pública
+- [x] Fix: atualização continua travando com status 'running' (investigar causa raiz)
