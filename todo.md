@@ -22,3 +22,4 @@
 - [x] Testes vitest para o sistema de atualização
 - [x] Fix: textos truncados nos cards de necessidades na versão mobile (quebra de texto)
 - [x] Ordenar pontos com necessidades urgentes primeiro na lista
+- [x] Adicionar ponto de coleta Flaviense com necessidades (água, alimentos, higiene)

@@ -1,0 +1,14 @@
+{
+  "query": "SELECT id, nome FROM pontos WHERE nome = 'Flaviense';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, nome FROM pontos WHERE nome = 'Flaviense';",
+  "rows": [
+    {
+      "id": "30001",
+      "nome": "Flaviense"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\n30001\tFlaviense\n",
+  "stderr": "",
+  "execution_time_ms": 73
+}
