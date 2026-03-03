@@ -30,3 +30,4 @@
 - [x] Adicionar ponto: Estação São Pedro com necessidades urgentes
 - [x] Atualizar ponto: Escola Municipal Amélia Mascarenhas com necessidade urgente (cadeira de rodas)
 - [x] Aprimorar prompt do LLM com fontes de redes sociais (Threads, Instagram)
+- [x] Exibir data da última atualização (último cadastro de necessidade) em cada card de ponto

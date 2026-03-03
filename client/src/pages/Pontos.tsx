@@ -155,6 +155,20 @@ function PontoCard({ ponto }: { ponto: any }) {
   const urgentCount = necessidades?.filter((n: any) => n.status === "URGENTE").length ?? 0;
   const precisaCount = necessidades?.filter((n: any) => n.status === "PRECISA").length ?? 0;
 
+  // Calcular a data da última atualização baseada na necessidade mais recente
+  const lastNeedUpdate = useMemo(() => {
+    if (!necessidades || necessidades.length === 0) return null;
+    const dates = necessidades
+      .map((n: any) => {
+        const updated = n.updatedAt ? new Date(n.updatedAt).getTime() : 0;
+        const created = n.createdAt ? new Date(n.createdAt).getTime() : 0;
+        return Math.max(updated, created);
+      })
+      .filter((d: number) => d > 0);
+    if (dates.length === 0) return null;
+    return new Date(Math.max(...dates));
+  }, [necessidades]);
+
   return (
     <Card className="hover:shadow-lg transition-all duration-200 border-emerald-100 group flex flex-col">
       <CardHeader className="pb-3">
@@ -224,27 +238,22 @@ function PontoCard({ ponto }: { ponto: any }) {
         )}
 
         {/* Footer: last update + summary */}
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-emerald-50">
-          <div className="flex items-center gap-3">
-            {urgentCount > 0 && (
-              <span className="text-xs text-red-600 font-medium">{urgentCount} urgente{urgentCount > 1 ? "s" : ""}</span>
-            )}
-            {precisaCount > 0 && (
-              <span className="text-xs text-amber-600 font-medium">{precisaCount} necessário{precisaCount > 1 ? "s" : ""}</span>
-            )}
+        <div className="flex flex-col gap-2 pt-2 border-t border-emerald-50">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              {urgentCount > 0 && (
+                <span className="text-xs text-red-600 font-medium">{urgentCount} urgente{urgentCount > 1 ? "s" : ""}</span>
+              )}
+              {precisaCount > 0 && (
+                <span className="text-xs text-amber-600 font-medium">{precisaCount} necessário{precisaCount > 1 ? "s" : ""}</span>
+              )}
+            </div>
           </div>
-          {ponto.lastAutoUpdate && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="text-[11px] text-muted-foreground flex items-center gap-1 cursor-default">
-                  <RefreshCw className="w-3 h-3" />
-                  {formatRelativeTime(ponto.lastAutoUpdate)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Última atualização automática: {formatDate(ponto.lastAutoUpdate)}</p>
-              </TooltipContent>
-            </Tooltip>
+          {lastNeedUpdate && (
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <CalendarClock className="w-3 h-3 shrink-0" />
+              <span>Última atualização: {formatDate(lastNeedUpdate)}</span>
+            </div>
           )}
         </div>
       </CardContent>
