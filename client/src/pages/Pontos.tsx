@@ -289,6 +289,27 @@ export default function Pontos() {
       result = result.filter((p: any) => pontoIdsWithCategoria.has(p.id));
     }
 
+    // Ordenar: pontos com necessidades urgentes primeiro, depois por quantidade de necessidades
+    if (allNecessidades) {
+      const urgentCountMap = new Map<number, number>();
+      const needsCountMap = new Map<number, number>();
+      allNecessidades.forEach((n: any) => {
+        needsCountMap.set(n.pontoId, (needsCountMap.get(n.pontoId) || 0) + 1);
+        if (n.status === "URGENTE") {
+          urgentCountMap.set(n.pontoId, (urgentCountMap.get(n.pontoId) || 0) + 1);
+        }
+      });
+      result = [...result].sort((a: any, b: any) => {
+        const aUrgent = urgentCountMap.get(a.id) || 0;
+        const bUrgent = urgentCountMap.get(b.id) || 0;
+        if (aUrgent !== bUrgent) return bUrgent - aUrgent;
+        const aNeeds = needsCountMap.get(a.id) || 0;
+        const bNeeds = needsCountMap.get(b.id) || 0;
+        if (aNeeds !== bNeeds) return bNeeds - aNeeds;
+        return a.nome.localeCompare(b.nome);
+      });
+    }
+
     return result;
   }, [pontos, searchTerm, selectedBairro, selectedCategoria, allNecessidades]);
 

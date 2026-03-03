@@ -21,3 +21,4 @@
 - [x] Frontend: exibir horário da última atualização nos cards de cada ponto
 - [x] Testes vitest para o sistema de atualização
 - [x] Fix: textos truncados nos cards de necessidades na versão mobile (quebra de texto)
+- [x] Ordenar pontos com necessidades urgentes primeiro na lista
