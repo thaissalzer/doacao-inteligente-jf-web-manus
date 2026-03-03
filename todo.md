@@ -50,3 +50,4 @@
 - [x] Fix: atualização continua travando com status 'running' (investigar causa raiz)
 - [x] Fix: timeout da chamada LLM não funciona - implementar com Promise.race
 - [x] Aprimorar página inicial com imagem de Juiz de Fora e design mais profissional
+- [x] Alterar link do repositório GitHub para https://github.com/thaissalzer/doacao-inteligente-jf-web-manus

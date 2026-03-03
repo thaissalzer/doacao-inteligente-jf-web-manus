@@ -413,7 +413,7 @@ export default function Home() {
                   e tornar a ferramenta estratégica e sem validade. Ajude a acelerar o desenvolvimento dessa ferramenta.
                 </p>
                 <a
-                  href="https://github.com/thaissalzer/doacao-inteligente-jf"
+                  href="https://github.com/thaissalzer/doacao-inteligente-jf-web-manus"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-white transition-colors font-medium"
