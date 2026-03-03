@@ -31,3 +31,5 @@
 - [x] Atualizar ponto: Escola Municipal Amélia Mascarenhas com necessidade urgente (cadeira de rodas)
 - [x] Aprimorar prompt do LLM com fontes de redes sociais (Threads, Instagram)
 - [x] Exibir data da última atualização (último cadastro de necessidade) em cada card de ponto
+- [x] Atualizar hero da landing page: destaque para doações de todo o Brasil
+- [x] Adicionar rodapé com info da desenvolvedora, modelo de IA e convite para contribuição

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { Heart, MapPin, Package, Users, ArrowRight, HandHeart, Search, Shield } from "lucide-react";
+import { Heart, MapPin, Package, Users, ArrowRight, HandHeart, Search, Shield, Mail, Github, Code, Bot } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -169,15 +169,16 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6">
               <Heart className="w-4 h-4" />
-              Juiz de Fora se une pela solidariedade
+              Juiz de Fora precisa da sua ajuda
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
-              Doe com inteligência,{" "}
-              <span className="text-emerald-200">ajude com eficiência</span>
+              Direcionando solidariedade{" "}
+              <span className="text-emerald-200">de todo o Brasil</span>{" "}
+              com eficiência
             </h1>
             <p className="mt-6 text-lg md:text-xl text-emerald-100 leading-relaxed max-w-2xl">
               Saiba exatamente o que cada ponto de arrecadação em Juiz de Fora precisa.
-              Direcione sua doação para onde ela faz mais diferença.
+              De qualquer lugar do país, direcione sua doação para onde ela faz mais diferença.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/pontos">
@@ -218,19 +219,79 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-emerald-900 text-emerald-200 py-10">
-        <div className="container">
+      <footer className="bg-emerald-950 text-emerald-200">
+        {/* Sobre o projeto */}
+        <div className="border-b border-emerald-800/50">
+          <div className="container py-12">
+            <div className="grid md:grid-cols-2 gap-10">
+              {/* Sobre os dados */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Bot className="w-5 h-5 text-emerald-400" />
+                  <h3 className="text-lg font-semibold text-white">Sobre os dados</h3>
+                </div>
+                <p className="text-sm text-emerald-300 leading-relaxed mb-4">
+                  As informações são atualizadas via modelo de Inteligência Artificial com base nas atualizações
+                  diárias da web e também podem ser cadastradas manualmente.
+                </p>
+                <p className="text-sm text-emerald-300 leading-relaxed">
+                  Se quiser contribuir com informações, envie e-mail para{" "}
+                  <a href="mailto:thaissalzer@gmail.com" className="text-emerald-400 hover:text-white transition-colors underline underline-offset-2">
+                    thaissalzer@gmail.com
+                  </a>
+                </p>
+              </div>
+
+              {/* Convite para devs */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Code className="w-5 h-5 text-emerald-400" />
+                  <h3 className="text-lg font-semibold text-white">É Desenvolvedor?</h3>
+                </div>
+                <p className="text-sm text-emerald-300 leading-relaxed mb-4">
+                  Toda ajuda é bem-vinda. Estamos desenvolvendo código aberto para aprimoramento contínuo
+                  e tornar a ferramenta estratégica e sem validade. Ajude a acelerar o desenvolvimento dessa ferramenta.
+                </p>
+                <a
+                  href="https://github.com/thaissalzer/doacao-inteligente-jf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-white transition-colors font-medium"
+                >
+                  <Github className="w-4 h-4" />
+                  Ver repositório no GitHub
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Créditos */}
+        <div className="container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-emerald-400 fill-emerald-400" />
               <span className="font-semibold text-white">Doação Inteligente JF</span>
             </div>
-            <p className="text-sm text-emerald-400">
-              Conectando doadores a quem precisa em Juiz de Fora
+            <p className="text-sm text-emerald-400 text-center">
+              Desenvolvedora: <span className="text-white font-medium">Thais Salzer Procópio</span>{" "}
+              <a
+                href="https://instagram.com/thais_salzer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                @thais_salzer
+              </a>
             </p>
             <div className="flex gap-4 text-sm">
               <Link href="/pontos" className="hover:text-white transition-colors">Pontos</Link>
               <Link href="/mapa" className="hover:text-white transition-colors">Mapa</Link>
+              <a href="mailto:thaissalzer@gmail.com" className="hover:text-white transition-colors flex items-center gap-1">
+                <Mail className="w-3 h-3" />
+                Contato
+              </a>
             </div>
           </div>
         </div>
