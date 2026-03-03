@@ -249,6 +249,32 @@ export async function runAutoUpdate(): Promise<void> {
     return;
   }
 
+  // Auto-recovery: limpar logs travados (running há mais de 10 minutos)
+  try {
+    const staleThreshold = new Date(Date.now() - 10 * 60 * 1000);
+    await db
+      .update(updateLogs)
+      .set({
+        status: "error",
+        erro: "Atualização expirou (timeout de 10 minutos)",
+        finishedAt: new Date(),
+      })
+      .where(and(eq(updateLogs.status, "running"), sql`${updateLogs.startedAt} < ${staleThreshold}`));
+  } catch (e) {
+    console.warn("[AutoUpdate] Falha ao limpar logs travados:", e);
+  }
+
+  // Verificar se já existe uma atualização em andamento recente
+  const [currentRunning] = await db
+    .select()
+    .from(updateLogs)
+    .where(eq(updateLogs.status, "running"))
+    .limit(1);
+  if (currentRunning) {
+    console.log("[AutoUpdate] Já existe uma atualização em andamento. Ignorando.");
+    return;
+  }
+
   console.log("[AutoUpdate] Iniciando atualização automática...");
 
   // Criar log de execução

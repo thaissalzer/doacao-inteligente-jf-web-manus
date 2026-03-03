@@ -1,0 +1,46 @@
+{
+  "query": "SELECT id, status, startedAt, finishedAt FROM updateLogs WHERE status = 'running';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, status, startedAt, finishedAt FROM updateLogs WHERE status = 'running';",
+  "rows": [
+    {
+      "id": "2",
+      "status": "running",
+      "startedAt": "2026-03-03 11:52:45",
+      "finishedAt": "NULL"
+    },
+    {
+      "id": "4",
+      "status": "running",
+      "startedAt": "2026-03-03 11:59:13",
+      "finishedAt": "NULL"
+    },
+    {
+      "id": "16",
+      "status": "running",
+      "startedAt": "2026-03-03 12:41:11",
+      "finishedAt": "NULL"
+    },
+    {
+      "id": "18",
+      "status": "running",
+      "startedAt": "2026-03-03 12:42:34",
+      "finishedAt": "NULL"
+    },
+    {
+      "id": "19",
+      "status": "running",
+      "startedAt": "2026-03-03 12:43:00",
+      "finishedAt": "NULL"
+    },
+    {
+      "id": "24",
+      "status": "running",
+      "startedAt": "2026-03-03 13:04:30",
+      "finishedAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tstartedAt\tfinishedAt\n2\trunning\t2026-03-03 11:52:45\tNULL\n4\trunning\t2026-03-03 11:59:13\tNULL\n16\trunning\t2026-03-03 12:41:11\tNULL\n18\trunning\t2026-03-03 12:42:34\tNULL\n19\trunning\t2026-03-03 12:43:00\tNULL\n24\trunning\t2026-03-03 13:04:30\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

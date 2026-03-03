@@ -1,0 +1,55 @@
+{
+  "query": "SELECT id, status, startedAt, finishedAt, pontosAtualizados, necessidadesAdicionadas, erro FROM updateLogs ORDER BY id DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, status, startedAt, finishedAt, pontosAtualizados, necessidadesAdicionadas, erro FROM updateLogs ORDER BY id DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "24",
+      "status": "running",
+      "startedAt": "2026-03-03 13:04:30",
+      "finishedAt": "NULL",
+      "pontosAtualizados": "0",
+      "necessidadesAdicionadas": "0",
+      "erro": "NULL"
+    },
+    {
+      "id": "23",
+      "status": "success",
+      "startedAt": "2026-03-03 13:00:59",
+      "finishedAt": "2026-03-03 13:01:02",
+      "pontosAtualizados": "0",
+      "necessidadesAdicionadas": "0",
+      "erro": "NULL"
+    },
+    {
+      "id": "22",
+      "status": "success",
+      "startedAt": "2026-03-03 12:54:44",
+      "finishedAt": "2026-03-03 12:55:03",
+      "pontosAtualizados": "11",
+      "necessidadesAdicionadas": "9",
+      "erro": "NULL"
+    },
+    {
+      "id": "21",
+      "status": "success",
+      "startedAt": "2026-03-03 12:53:35",
+      "finishedAt": "2026-03-03 12:54:13",
+      "pontosAtualizados": "19",
+      "necessidadesAdicionadas": "17",
+      "erro": "NULL"
+    },
+    {
+      "id": "20",
+      "status": "success",
+      "startedAt": "2026-03-03 12:46:04",
+      "finishedAt": "2026-03-03 12:46:17",
+      "pontosAtualizados": "0",
+      "necessidadesAdicionadas": "0",
+      "erro": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tstartedAt\tfinishedAt\tpontosAtualizados\tnecessidadesAdicionadas\terro\n24\trunning\t2026-03-03 13:04:30\tNULL\t0\t0\tNULL\n23\tsuccess\t2026-03-03 13:00:59\t2026-03-03 13:01:02\t0\t0\tNULL\n22\tsuccess\t2026-03-03 12:54:44\t2026-03-03 12:55:03\t11\t9\tNULL\n21\tsuccess\t2026-03-03 12:53:35\t2026-03-03 12:54:13\t19\t17\tNULL\n20\tsuccess\t2026-03-03 12:46:04\t2026-03-03 12:46:17\t0\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

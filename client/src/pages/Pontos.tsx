@@ -86,12 +86,19 @@ function CategoryBadge({ categoria }: { categoria: string }) {
 }
 
 function UpdateStatusBanner() {
-  const { data: lastUpdate, isLoading } = trpc.updates.lastUpdate.useQuery();
+  const { data: lastUpdate, isLoading } = trpc.updates.lastUpdate.useQuery(undefined, {
+    refetchInterval: 30000, // Refetch a cada 30s para atualizar status
+  });
 
   if (isLoading) return null;
 
-  const isRunning = lastUpdate?.status === "running";
-  const isError = lastUpdate?.status === "error";
+  // Se estiver "running" há mais de 10 minutos, considerar como travado/erro
+  const startedAt = lastUpdate?.startedAt ? new Date(lastUpdate.startedAt) : null;
+  const isStale = lastUpdate?.status === "running" && startedAt && 
+    (Date.now() - startedAt.getTime()) > 10 * 60 * 1000;
+  
+  const isRunning = lastUpdate?.status === "running" && !isStale;
+  const isError = lastUpdate?.status === "error" || isStale;
   const isSuccess = lastUpdate?.status === "success";
   const finishedAt = lastUpdate?.finishedAt ?? lastUpdate?.startedAt;
 

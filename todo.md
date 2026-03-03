@@ -42,3 +42,4 @@
 - [x] Frontend admin: aba de aprovação com lista de sugestões pendentes
 - [x] Ajustar cron para rodar apenas 1x/dia às 9h da manhã
 - [x] Testes vitest para o sistema de aprovação
+- [x] Fix: atualização travada com status 'running' que nunca finaliza (banner mostrando "em andamento" indefinidamente)
