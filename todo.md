@@ -48,3 +48,4 @@
 - [x] Frontend: link para o formulário na página de Pontos e na Home
 - [x] Testes vitest para a rota de sugestão pública
 - [x] Fix: atualização continua travando com status 'running' (investigar causa raiz)
+- [x] Fix: timeout da chamada LLM não funciona - implementar com Promise.race

@@ -40,14 +40,14 @@ type LLMResponse = {
 async function fetchUpdatesFromLLM(existingPontos: string[]): Promise<LLMResponse> {
   const pontosListStr = existingPontos.map((n, i) => `${i + 1}. ${n}`).join("\n");
 
-  // Timeout de 2 minutos para a chamada LLM
-  const timeoutMs = 2 * 60 * 1000;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  // Timeout real de 90 segundos usando Promise.race
+  const TIMEOUT_MS = 90 * 1000;
 
-  let response;
-  try {
-    response = await invokeLLM({
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('Timeout: a busca de atualizações excedeu 90 segundos')), TIMEOUT_MS);
+  });
+
+  const llmPromise = invokeLLM({
     messages: [
       {
         role: "system",
@@ -149,14 +149,7 @@ Responda APENAS com JSON válido no formato especificado.`,
     },
   });
 
-  clearTimeout(timeoutId);
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('Timeout: a busca de atualizações excedeu 2 minutos');
-    }
-    throw error;
-  }
+  const response = await Promise.race([llmPromise, timeoutPromise]);
 
   const content = response.choices[0]?.message?.content;
   if (!content || typeof content !== "string") {
