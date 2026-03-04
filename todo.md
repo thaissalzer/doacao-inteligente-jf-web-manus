@@ -51,3 +51,4 @@
 - [x] Fix: timeout da chamada LLM não funciona - implementar com Promise.race
 - [x] Aprimorar página inicial com imagem de Juiz de Fora e design mais profissional
 - [x] Alterar link do repositório GitHub para https://github.com/thaissalzer/doacao-inteligente-jf-web-manus
+- [x] Fix: erro ao inserir ponto de doação com cidade diferente (ex: Itabira) - falha no INSERT

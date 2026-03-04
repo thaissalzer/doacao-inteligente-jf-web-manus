@@ -121,7 +121,19 @@ export async function createPonto(data: InsertPonto) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(pontos).values(data);
+  // Garantir que campos opcionais com defaults tenham valores válidos
+  const sanitized = {
+    ...data,
+    cidade: data.cidade || "Juiz de Fora",
+    endereco: data.endereco || "",
+    horario: data.horario || "",
+    descricao: data.descricao || null,
+    contatoNome: data.contatoNome || "",
+    contatoWhats: data.contatoWhats || "",
+    contatoEmail: data.contatoEmail || "",
+  };
+
+  const result = await db.insert(pontos).values(sanitized);
   return result[0].insertId;
 }
 
