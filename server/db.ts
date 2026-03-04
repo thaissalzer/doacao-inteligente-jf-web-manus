@@ -201,22 +201,6 @@ export async function createNecessidade(data: InsertNecessidade) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Verificar se já existe uma necessidade com a mesma categoria e item para este ponto
-  if (data.pontoId && data.categoria && data.item) {
-    const existing = await db.select().from(necessidades).where(
-      and(
-        eq(necessidades.pontoId, data.pontoId),
-        eq(necessidades.categoria, data.categoria),
-        eq(necessidades.item, data.item)
-      )
-    ).limit(1);
-
-    if (existing.length > 0) {
-      // Se já existe, retornar o ID da existente em vez de criar duplicata
-      return existing[0].id;
-    }
-  }
-
   const result = await db.insert(necessidades).values(data);
   return result[0].insertId;
 }
