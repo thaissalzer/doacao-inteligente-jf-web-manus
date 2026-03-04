@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, status, startedAt, finishedAt, resumo, erro FROM updateLogs ORDER BY startedAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, status, startedAt, finishedAt, resumo, erro FROM updateLogs ORDER BY startedAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "60001",
+      "status": "running",
+      "startedAt": "2026-03-04 05:21:51",
+      "finishedAt": "NULL",
+      "resumo": "NULL",
+      "erro": "NULL"
+    },
+    {
+      "id": "30003",
+      "status": "error",
+      "startedAt": "2026-03-03 14:31:29",
+      "finishedAt": "2026-03-04 05:21:51",
+      "resumo": "NULL",
+      "erro": "Atualização expirou (timeout de 10 minutos)"
+    },
+    {
+      "id": "30002",
+      "status": "error",
+      "startedAt": "2026-03-03 14:17:43",
+      "finishedAt": "2026-03-03 14:30:57",
+      "resumo": "NULL",
+      "erro": "Timeout - chamada LLM não retornou"
+    },
+    {
+      "id": "30001",
+      "status": "error",
+      "startedAt": "2026-03-03 14:05:15",
+      "finishedAt": "2026-03-03 14:14:52",
+      "resumo": "NULL",
+      "erro": "Atualização expirou (timeout)"
+    },
+    {
+      "id": "24",
+      "status": "error",
+      "startedAt": "2026-03-03 13:04:30",
+      "finishedAt": "2026-03-03 14:04:12",
+      "resumo": "NULL",
+      "erro": "Atualização travada - corrigida automaticamente"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tstartedAt\tfinishedAt\tresumo\terro\n60001\trunning\t2026-03-04 05:21:51\tNULL\tNULL\tNULL\n30003\terror\t2026-03-03 14:31:29\t2026-03-04 05:21:51\tNULL\tAtualização expirou (timeout de 10 minutos)\n30002\terror\t2026-03-03 14:17:43\t2026-03-03 14:30:57\tNULL\tTimeout - chamada LLM não retornou\n30001\terror\t2026-03-03 14:05:15\t2026-03-03 14:14:52\tNULL\tAtualização expirou (timeout)\n24\terror\t2026-03-03 13:04:30\t2026-03-03 14:04:12\tNULL\tAtualização travada - corrigida automaticamente\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}
