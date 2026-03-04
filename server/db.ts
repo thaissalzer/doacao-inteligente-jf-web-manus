@@ -106,7 +106,10 @@ export async function listPontos(filters?: { ativo?: boolean; bairro?: string; t
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
-  return db.select().from(pontos).where(where).orderBy(pontos.nome);
+  return db.select().from(pontos).where(where).orderBy(
+    desc(pontos.lastAutoUpdate),
+    pontos.nome
+  );
 }
 
 export async function getPontoById(id: number) {

@@ -53,3 +53,4 @@
 - [x] Alterar link do repositório GitHub para https://github.com/thaissalzer/doacao-inteligente-jf-web-manus
 - [x] Fix: erro ao inserir ponto de doação com cidade diferente (ex: Itabira) - falha no INSERT
 - [x] Fix: atualização automática travada em andamento desde 04/03/2026 02:21
+- [x] Ordenar lista de pontos por última atualização (mais recentes primeiro) e exibir data

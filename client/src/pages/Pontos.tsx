@@ -247,10 +247,10 @@ function PontoCard({ ponto }: { ponto: any }) {
               )}
             </div>
           </div>
-          {lastNeedUpdate && (
+          {(ponto.lastAutoUpdate || lastNeedUpdate) && (
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <CalendarClock className="w-3 h-3 shrink-0" />
-              <span>Última atualização: {formatDate(lastNeedUpdate)}</span>
+              <span>Última atualização: {formatDate(ponto.lastAutoUpdate || lastNeedUpdate)}</span>
             </div>
           )}
         </div>
