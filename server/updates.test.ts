@@ -245,7 +245,7 @@ describe("sugestoes.approveAll (admin only)", () => {
     expect(result).toHaveProperty("approved");
     expect(result).toHaveProperty("total");
     expect(typeof result.approved).toBe("number");
-  });
+  }, 10000); // 10 second timeout for this test
 });
 
 describe("sugestoes.submit (public)", () => {

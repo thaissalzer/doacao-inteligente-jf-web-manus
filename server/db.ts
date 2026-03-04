@@ -107,7 +107,8 @@ export async function listPontos(filters?: { ativo?: boolean; bairro?: string; t
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
   return db.select().from(pontos).where(where).orderBy(
-    desc(pontos.lastAutoUpdate),
+    sql`CASE WHEN ${pontos.lastAutoUpdate} IS NULL THEN 1 ELSE 0 END`,
+    sql`${pontos.lastAutoUpdate} DESC`,
     pontos.nome
   );
 }
