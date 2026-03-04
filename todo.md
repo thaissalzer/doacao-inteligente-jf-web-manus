@@ -48,3 +48,4 @@
 - [x] Fix: atualização automática travada em andamento desde 04/03/2026 02:21
 - [x] Ordenar lista de pontos por última atualização (mais recentes primeiro) e exibir data
 - [x] Fix: ordenação por última atualização não estava respeitando DESC (NULLs apareciam primeiro)
+- [x] Fix: remover necessidades duplicadas dentro de um mesmo ponto de arrecadação
