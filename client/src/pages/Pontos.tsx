@@ -263,11 +263,19 @@ export default function Pontos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBairro, setSelectedBairro] = useState<string>("all");
   const [selectedCategoria, setSelectedCategoria] = useState<string>("all");
+  const [selectedCidade, setSelectedCidade] = useState<string>("all");
   const { user, isAuthenticated } = useAuth();
 
   const { data: pontos, isLoading } = trpc.pontos.list.useQuery({ ativo: true });
   const { data: bairros } = trpc.pontos.getBairros.useQuery();
   const { data: allNecessidades } = trpc.necessidades.list.useQuery({});
+
+  // Extrair cidades únicas dos pontos
+  const cidades = useMemo(() => {
+    if (!pontos) return [];
+    const cidadesSet = new Set(pontos.map((p: any) => p.cidade || "Juiz de Fora"));
+    return Array.from(cidadesSet).sort();
+  }, [pontos]);
 
   const filteredPontos = useMemo(() => {
     if (!pontos) return [];
@@ -282,6 +290,10 @@ export default function Pontos() {
           (p.cidade && p.cidade.toLowerCase().includes(term)) ||
           (p.endereco && p.endereco.toLowerCase().includes(term))
       );
+    }
+
+    if (selectedCidade && selectedCidade !== "all") {
+      result = result.filter((p: any) => (p.cidade || "Juiz de Fora") === selectedCidade);
     }
 
     if (selectedBairro && selectedBairro !== "all") {
@@ -321,7 +333,7 @@ export default function Pontos() {
     }
 
     return result;
-  }, [pontos, searchTerm, selectedBairro, selectedCategoria, allNecessidades]);
+  }, [pontos, searchTerm, selectedBairro, selectedCidade, selectedCategoria, allNecessidades]);
 
   const categorias = [
     "Alimentos", "Roupas", "Produtos de Higiene", "Material de Limpeza",
@@ -389,10 +401,22 @@ export default function Pontos() {
               className="pl-10"
             />
           </div>
+          <Select value={selectedCidade} onValueChange={setSelectedCidade}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as cidades</SelectItem>
+              {cidades.map((c: string) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={selectedBairro} onValueChange={setSelectedBairro}>
             <SelectTrigger className="w-full sm:w-[240px]">
               <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
-              <SelectValue placeholder="Bairro / Cidade" />
+              <SelectValue placeholder="Bairro" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os bairros</SelectItem>

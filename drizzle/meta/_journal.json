@@ -36,6 +36,20 @@
       "when": 1772542808687,
       "tag": "0004_vengeful_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1772650848550,
+      "tag": "0005_long_micromax",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1772651110593,
+      "tag": "0006_bouncy_ultragirl",
+      "breakpoints": true
     }
   ]
 }
