@@ -50,3 +50,4 @@
 - [x] Fix: ordenação por última atualização não estava respeitando DESC (NULLs apareciam primeiro)
 - [x] Fix: remover necessidades duplicadas dentro de um mesmo ponto de arrecadação
 - [x] Adicionar filtro por cidade na lista de pontos de doação
+- [x] Fix: erro de WebSocket do Vite HMR - tentando conectar ao localhost:5173 em vez do domínio público
