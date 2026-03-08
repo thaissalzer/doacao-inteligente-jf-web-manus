@@ -57,6 +57,13 @@
       "when": 1772799902092,
       "tag": "0007_last_swarm",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1773014000289,
+      "tag": "0008_workable_selene",
+      "breakpoints": true
     }
   ]
 }

@@ -116,3 +116,20 @@ export const pageViews = mysqlTable("pageViews", {
 
 export type PageView = typeof pageViews.$inferSelect;
 export type InsertPageView = typeof pageViews.$inferInsert;
+
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  userEmail: varchar("userEmail", { length: 320 }).notNull(),
+  action: varchar("action", { length: 255 }).notNull(), // "login", "approve_sugestao", "reject_sugestao", "create_ponto", "update_ponto", etc
+  resourceType: varchar("resourceType", { length: 100 }), // "sugestao", "ponto", "necessidade", etc
+  resourceId: int("resourceId"),
+  details: text("details"), // JSON com detalhes da ação
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 ou IPv6
+  userAgent: text("userAgent"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
