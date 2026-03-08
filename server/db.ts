@@ -1,6 +1,6 @@
 import { eq, and, sql, inArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, pontos, necessidades, type InsertPonto, type InsertNecessidade } from "../drizzle/schema";
+import { InsertUser, users, pontos, necessidades, pageViews, type InsertPonto, type InsertNecessidade } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -326,5 +326,73 @@ export async function seedPontosOficiais() {
 
   for (const nec of sampleNecessidades) {
     await db.insert(necessidades).values(nec);
+  }
+}
+
+export async function getPageViewCount(page: string = "home"): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .select({ count: pageViews.count })
+    .from(pageViews)
+    .where(eq(pageViews.page, page))
+    .limit(1);
+
+  return result[0]?.count ?? 0;
+}
+
+export async function incrementPageView(page: string = "home"): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Tentar atualizar primeiro
+  const existing = await db
+    .select({ count: pageViews.count })
+    .from(pageViews)
+    .where(eq(pageViews.page, page))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Atualizar
+    await db
+      .update(pageViews)
+      .set({ count: sql`${pageViews.count} + 1` })
+      .where(eq(pageViews.page, page));
+  } else {
+    // Inserir novo registro
+    await db.insert(pageViews).values({
+      page,
+      count: 1,
+    });
+  }
+
+  // Retornar o novo valor
+  const updated = await db
+    .select({ count: pageViews.count })
+    .from(pageViews)
+    .where(eq(pageViews.page, page))
+    .limit(1);
+
+  return updated[0]?.count ?? 1;
+}
+
+export async function initializePageViews(): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Verificar se já existe registro para "home"
+  const existing = await db
+    .select()
+    .from(pageViews)
+    .where(eq(pageViews.page, "home"))
+    .limit(1);
+
+  if (existing.length === 0) {
+    // Inicializar com 1400
+    await db.insert(pageViews).values({
+      page: "home",
+      count: 1400,
+    });
   }
 }

@@ -21,6 +21,7 @@ import {
   seedPontosOficiais,
 } from "./db";
 import { notifyOwner } from "./_core/notification";
+import { getPageViews } from "./analytics";
 import { runAutoUpdate, getLastUpdateLog, getUpdateLogs, listSugestoes, countPendingSugestoes, aproveSugestao, rejectSugestao, approveAllPending } from "./autoUpdate";
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -254,6 +255,19 @@ export const appRouter = router({
 
     approveAll: adminProcedure.mutation(async ({ ctx }) => {
       return approveAllPending(ctx.user.name ?? "Admin");
+    }),
+  }),
+
+  analytics: router({
+    pageViews: publicProcedure.query(async () => {
+      const { getPageViewCount, incrementPageView, initializePageViews } = await import("./db");
+      // Inicializar se necessário
+      await initializePageViews();
+      // Incrementar visualização
+      await incrementPageView("home");
+      // Retornar o novo valor
+      const views = await getPageViewCount("home");
+      return { pageViews: views };
     }),
   }),
 });

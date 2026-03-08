@@ -52,3 +52,4 @@
 - [x] Adicionar filtro por cidade na lista de pontos de doação
 - [x] Fix: erro de WebSocket do Vite HMR - tentando conectar ao localhost:5173 em vez do domínio público
 - [x] Fix: API retornando HTML em vez de JSON - erro ao carregar página /pontos
+- [x] Adicionar métrica de visualizações de página na página inicial

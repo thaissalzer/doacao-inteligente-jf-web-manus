@@ -106,3 +106,13 @@ export const sugestoes = mysqlTable("sugestoes", {
 
 export type Sugestao = typeof sugestoes.$inferSelect;
 export type InsertSugestao = typeof sugestoes.$inferInsert;
+
+export const pageViews = mysqlTable("pageViews", {
+  id: int("id").autoincrement().primaryKey(),
+  page: varchar("page", { length: 255 }).notNull(),
+  count: int("count").default(0).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageView = typeof pageViews.$inferSelect;
+export type InsertPageView = typeof pageViews.$inferInsert;

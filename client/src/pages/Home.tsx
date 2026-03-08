@@ -10,6 +10,26 @@ const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663380155469/bY2zkm
 const SOLIDARITY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663380155469/bY2zkmax4x7K9B5D6rJvxB/hero-solidarity-K4PEE88hTjovS7Tiiheq2n.webp";
 const VOLUNTEERS_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663380155469/bY2zkmax4x7K9B5D6rJvxB/section-volunteers-DvK6PuYJVYtNzRyJQdkC4y.webp";
 
+function PageViewsSection() {
+  const { data: analytics } = trpc.analytics.pageViews.useQuery();
+
+  return (
+    <section className="py-12 bg-gradient-to-r from-emerald-50 to-emerald-100/50 border-t border-emerald-200">
+      <div className="container">
+        <div className="text-center">
+          <p className="text-lg text-emerald-900 font-medium">
+            Esta página já ajudou a conectar doadores a necessidades reais em mais de
+            <span className="text-2xl font-bold text-emerald-700 mx-2">
+              {analytics?.pageViews?.toLocaleString("pt-BR") ?? "..."}
+            </span>
+            ocasiões.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StatsSection() {
   const { data: stats } = trpc.pontos.getStats.useQuery();
 
@@ -367,6 +387,7 @@ export default function Home() {
         </div>
       </section>
 
+      <PageViewsSection />
       <StatsSection />
       <HowItWorks />
       <CategoriesPreview />
