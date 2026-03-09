@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, userName, userEmail, action, resourceType, createdAt FROM auditLogs WHERE action IN ('approve_sugestao', 'reject_sugestao') ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2bbquj4Y6sTJTAT.root --database bY2zkmax4x7K9B5D6rJvxB --execute SELECT id, userName, userEmail, action, resourceType, createdAt FROM auditLogs WHERE action IN ('approve_sugestao', 'reject_sugestao') ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "4",
+      "userName": "Test User",
+      "userEmail": "test@example.com",
+      "action": "approve_sugestao",
+      "resourceType": "sugestao",
+      "createdAt": "2026-03-08 23:55:29"
+    },
+    {
+      "id": "1",
+      "userName": "Test User",
+      "userEmail": "test@example.com",
+      "action": "approve_sugestao",
+      "resourceType": "sugestao",
+      "createdAt": "2026-03-08 23:54:45"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserName\tuserEmail\taction\tresourceType\tcreatedAt\n4\tTest User\ttest@example.com\tapprove_sugestao\tsugestao\t2026-03-08 23:55:29\n1\tTest User\ttest@example.com\tapprove_sugestao\tsugestao\t2026-03-08 23:54:45\n",
+  "stderr": "",
+  "execution_time_ms": 367
+}

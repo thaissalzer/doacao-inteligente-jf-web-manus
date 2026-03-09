@@ -42,6 +42,18 @@ export const appRouter = router({
     }),
   }),
 
+  // Verificar que o usuário logado é Thais Salzer
+  verifyAdmin: protectedProcedure.query(({ ctx }) => {
+    if (ctx.user.role !== "admin") {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Apenas administradores podem acessar" });
+    }
+    return {
+      isAdmin: true,
+      name: ctx.user.name,
+      email: ctx.user.email,
+    };
+  }),
+
   pontos: router({
     list: publicProcedure
       .input(z.object({
@@ -244,17 +256,20 @@ export const appRouter = router({
     approve: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        return aproveSugestao(input.id, ctx.user.name ?? "Admin");
+        if (!ctx.user.name) throw new TRPCError({ code: "UNAUTHORIZED", message: "Nome do usuário não disponível" });
+        return aproveSugestao(input.id, ctx.user.name);
       }),
 
     reject: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        return rejectSugestao(input.id, ctx.user.name ?? "Admin");
+        if (!ctx.user.name) throw new TRPCError({ code: "UNAUTHORIZED", message: "Nome do usuário não disponível" });
+        return rejectSugestao(input.id, ctx.user.name);
       }),
 
     approveAll: adminProcedure.mutation(async ({ ctx }) => {
-      return approveAllPending(ctx.user.name ?? "Admin");
+      if (!ctx.user.name) throw new TRPCError({ code: "UNAUTHORIZED", message: "Nome do usuário não disponível" });
+      return approveAllPending(ctx.user.name);
     }),
   }),
 

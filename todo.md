@@ -54,3 +54,4 @@
 - [x] Fix: API retornando HTML em vez de JSON - erro ao carregar página /pontos
 - [x] Adicionar métrica de visualizações de página na página inicial
 - [x] Criar sistema de auditoria para rastrear acessos e ações na área de administrador
+- [x] Fix: corrigir rotas de aprovação para usar nome real do usuário (Thais Salzer) em vez de "Admin"
